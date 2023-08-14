@@ -2,17 +2,17 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"strconv"
-	"tiktok/dao"
+	"log"
+	"tiktok/controller"
 )
+
+var logger = log.Default()
 
 func initRouter(r *gin.Engine) {
 	apiRouter := r.Group("/douyin")
-	apiRouter.GET("/user/", func(c *gin.Context) {
-		userIdStr := c.Query("user_id")
-		userId, _ := strconv.Atoi(userIdStr)
-		user := dao.GetUserById(userId)
-		c.JSON(200, user)
-	},
-	)
+	{
+		apiRouter.GET("/user/", controller.GetUserById)
+		apiRouter.POST("/user/register/", controller.Register)
+		apiRouter.POST("/user/login/", controller.Login)
+	}
 }

@@ -1,35 +1,46 @@
 package utils
 
 import (
-	"errors"
 	"github.com/golang-jwt/jwt/v5"
+	"log"
 	"tiktok/setting"
+	"time"
 )
 
-// GetJwt 通过claims参数得到JWT令牌
-func GetJwt(claims jwt.Claims) (string, error) {
-	key := setting.JwtSignedKey
-	s, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(key)
-	if err != nil {
-		return "", errors.New("claims invalid")
-	}
-	return s, nil
+type Payload struct {
+	Username string `json:"username"`
+	jwt.RegisteredClaims
 }
 
-// ParseJwt 通过解析JWT令牌得到claims
-func ParseJwt(str string, claims jwt.Claims) (jwt.Claims, error) {
-	token, err := jwt.ParseWithClaims(str, claims, func(token *jwt.Token) (interface{}, error) {
-		return setting.JwtSignedKey, nil
-	})
+// GetJwt 通过username参数得到JWT令牌
+func GetJwt(username string) string {
+	claims := Payload{
+		username,
+		jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // 过期时间24小时
+			IssuedAt:  jwt.NewNumericDate(time.Now()),                     // 签发时间
+			NotBefore: jwt.NewNumericDate(time.Now()),                     // 生效时间
+		},
+	}
+	// 使用HS256签名算法
+	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	s, err := t.SignedString([]byte(setting.JwtSignedKey))
 	if err != nil {
+		log.Default().Println("生成jwt令牌出错")
+		return ""
+	}
+	return s
+}
+
+// ParseJwt 解析JWT
+func ParseJwt(tokenString, secretKey string) (*Payload, error) {
+	t, err := jwt.ParseWithClaims(tokenString, &Payload{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(secretKey), nil
+	})
+	//检查信息是否为payload类型，如果是的话就返回其中包含的信息
+	if claims, ok := t.Claims.(*Payload); ok && t.Valid {
+		return claims, nil
+	} else {
 		return nil, err
 	}
-	if !token.Valid {
-		return nil, errors.New("claim invalid")
-	}
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return nil, errors.New("invalid claim type")
-	}
-	return claims, nil
 }
