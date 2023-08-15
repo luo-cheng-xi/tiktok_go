@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"tiktok/model/rsp"
 	"tiktok/model/vo"
-	"tiktok/srv"
+	"tiktok/service"
 )
 
 // GetUserById 用户信息获取功能
@@ -22,7 +22,7 @@ func GetUserById(c *gin.Context) {
 	}
 
 	//调用service层代码
-	userInfo, err := srv.GetUserById(userId)
+	userInfo, err := service.GetUserById(userId)
 	if err != nil {
 		c.JSON(http.StatusOK, rsp.Error(rsp.WithMsg(err.Error())))
 		return
@@ -53,7 +53,7 @@ func Register(c *gin.Context) {
 	}
 
 	//调用service层代码
-	id, token, err := srv.Register(username, password)
+	id, token, err := service.Register(username, password)
 	//该用户已存在，或者出现其他错误
 	if err != nil {
 		//返回错误信息
@@ -86,7 +86,7 @@ func Login(c *gin.Context) {
 	}
 
 	//调用service层代码
-	id, token, err := srv.Login(username, password)
+	id, token, err := service.Login(username, password)
 	if err != nil {
 		fmt.Print(err.Error())
 		c.JSON(http.StatusOK, rsp.Error(rsp.WithMsg(err.Error())))
