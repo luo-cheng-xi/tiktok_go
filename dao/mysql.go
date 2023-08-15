@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"tiktok/conf/mysql_conf"
 	"tiktok/model/po"
-	"tiktok/setting"
 )
 
 var (
@@ -14,10 +14,9 @@ var (
 
 // InitMysql 初始化mysql连接
 func InitMysql() {
-	//dsn := "root:root123456@tcp(192.168.157.129:3306)/tiktok?charset=utf8mb4&parseTime=True"
 	//初始化数据库连接
 	DB, _ = gorm.Open(
-		mysql.Open(setting.DatabaseDSN), &gorm.Config{
+		mysql.Open(mysql_conf.DSN), &gorm.Config{
 			SkipDefaultTransaction: true, //关闭默认事务
 			PrepareStmt:            true, //缓存预编译语句
 		})

@@ -2,7 +2,7 @@ package po
 
 import (
 	"gorm.io/gorm"
-	"tiktok/setting"
+	"tiktok/conf/defult_conf"
 	"time"
 )
 
@@ -20,10 +20,10 @@ type User struct {
 // BeforeCreate Hook函数，用户设置用户的默认信息
 func (u *User) BeforeCreate(*gorm.DB) error {
 	if u.Avatar == "" {
-		u.Avatar = setting.DefaultUserAvatar
+		u.Avatar = defult_conf.UserAvatar
 	}
 	if u.BackgroundImage == "" {
-		u.BackgroundImage = setting.DefaultBackGroundImage
+		u.BackgroundImage = defult_conf.BackGroundImage
 	}
 	return nil
 }
@@ -41,10 +41,10 @@ type Video struct {
 // BeforeCreate Hook函数，设置视频默认信息
 func (v *Video) BeforeCreate(*gorm.DB) error {
 	if v.Title == "" {
-		v.Title = setting.DefaultBackGroundImage
+		v.Title = defult_conf.BackGroundImage
 	}
 	if v.CoverUrl == "" {
-		v.Title = setting.DefaultVideoCover
+		v.Title = defult_conf.VideoCover
 	}
 	return nil
 }

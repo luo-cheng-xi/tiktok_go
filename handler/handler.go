@@ -3,8 +3,8 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"log"
+	"tiktok/conf"
 	"tiktok/dao"
-	"tiktok/setting"
 	"tiktok/utils"
 )
 
@@ -13,7 +13,7 @@ import (
 // 包含请求上下文参数
 func LoginCheckHandler(c *gin.Context) {
 	//截取token字符串的数据载荷
-	payload, err := utils.ParseJwt(c.Query("token"), setting.JwtSignedKey)
+	payload, err := utils.ParseJwt(c.Query("token"), conf.JwtSignedKey)
 	if err != nil {
 		log.Default().Println("错误的jwt令牌 :" + c.Query("token"))
 		return

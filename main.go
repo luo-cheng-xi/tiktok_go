@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"tiktok/conf"
 	"tiktok/dao"
-	"tiktok/setting"
 )
 
 func main() {
@@ -18,7 +18,7 @@ func main() {
 			"╚═╝  ╚═══╝ ╚═════╝     ╚═════╝  ╚═════╝  ╚═════╝ \n" +
 			"                                                 \n")
 	//初始化setting
-	setting.Init()
+	conf.Init()
 	//使用gin的默认http配置
 	r := gin.Default()
 

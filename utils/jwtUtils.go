@@ -3,7 +3,7 @@ package utils
 import (
 	"github.com/golang-jwt/jwt/v5"
 	"log"
-	"tiktok/setting"
+	"tiktok/conf/jwt_conf"
 	"time"
 )
 
@@ -24,7 +24,7 @@ func GetJwt(username string) string {
 	}
 	// 使用HS256签名算法
 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	s, err := t.SignedString([]byte(setting.JwtSignedKey))
+	s, err := t.SignedString([]byte(jwt_conf.JwtSignedKey))
 	if err != nil {
 		log.Default().Println("生成jwt令牌出错")
 		return ""
