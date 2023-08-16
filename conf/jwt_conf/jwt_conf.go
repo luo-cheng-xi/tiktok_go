@@ -9,7 +9,11 @@ var (
 	JwtSignedKey string
 )
 
-func Init(cfg *ini.File) {
+func init() {
+	cfg, err := ini.Load("conf.ini")
+	if err != nil {
+		panic("jwt_conf ini文件读取异常")
+	}
 	JwtSignedKey = cfg.Section("jwt").Key("signedKey").String()
-	lgr.Print("SignedKey = " + JwtSignedKey)
+	lgr.Print("Init SignedKey = " + JwtSignedKey)
 }

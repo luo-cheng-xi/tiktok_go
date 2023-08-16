@@ -87,13 +87,13 @@ type Follow struct {
 	FollowId   int64 `gorm:"uniqueIndex:idx_follower_follow;index:idx_follow"`
 }
 
-// Friend 好友关系表
-// UserId -> FriendId
-type Friend struct {
-	gorm.Model
-	UserId   int64 `gorm:"uniqueIndex:idx_user_friend"`
-	FriendId int64 `gorm:"uniqueIndex:idx_user_friend"`
-}
+//// Friend 好友关系表
+//// UserId -> FriendId
+//type Friend struct {
+//	gorm.Model
+//	UserId   int64 `gorm:"uniqueIndex:idx_user_friend"`
+//	FriendId int64 `gorm:"uniqueIndex:idx_user_friend"`
+//}
 
 // Message 用户消息表
 // FromUserId -> ToUserId

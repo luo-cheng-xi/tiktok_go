@@ -3,9 +3,11 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"log"
-	"tiktok/conf"
+	"net/http"
+	"tiktok/conf/jwt_conf"
 	"tiktok/dao"
-	"tiktok/utils"
+	"tiktok/model/rsp"
+	"tiktok/utils/jwt_utils"
 )
 
 // LoginCheckHandler 中间件，用于检查用户是否已经登录
@@ -13,17 +15,20 @@ import (
 // 包含请求上下文参数
 func LoginCheckHandler(c *gin.Context) {
 	//截取token字符串的数据载荷
-	payload, err := utils.ParseJwt(c.Query("token"), conf.JwtSignedKey)
+	payload, err := jwt_utils.ParseJwt(c.Query("token"), jwt_conf.JwtSignedKey)
 	if err != nil {
 		log.Default().Println("错误的jwt令牌 :" + c.Query("token"))
-		return
+		c.JSON(http.StatusUnauthorized, rsp.Error(rsp.WithMsg("您的用户鉴权无效")))
+		c.Abort() //阻止后续中间件的调用
+		return    //终止该函数
 	}
 	//从载荷中提取用户名信息
 	username := payload.Username
 	//查找是否存在该用户信息
 	if _, err = dao.GetUserByUsername(username); err != nil {
-		log.Default().Println("jwt令牌负载的用户信息不存在 用户名为 : " + username)
-		return
+		c.JSON(http.StatusUnauthorized, rsp.Error(rsp.WithMsg("您的用户鉴权无效")))
+		c.Abort() //阻止后续中间件调用
+		return    //终止该函数
 	}
 	//放行
 	c.Next()

@@ -13,7 +13,11 @@ var (
 	Schema   string
 )
 
-func Init(cfg *ini.File) {
+func init() {
+	cfg, err := ini.Load("conf.ini")
+	if err != nil {
+		panic("mysql_conf ini文件读取异常")
+	}
 	UserName = cfg.Section("database").Key("username").String()
 	Password = cfg.Section("database").Key("password").String()
 	Host = cfg.Section("database").Key("host").String()
