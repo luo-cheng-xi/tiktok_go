@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 	"tiktok/conf/jwt_conf"
-	"tiktok/dao"
+	"tiktok/dao/user_dao"
 	"tiktok/model/rsp"
 	"tiktok/utils/jwt_utils"
 )
@@ -22,10 +22,10 @@ func LoginCheckHandler(c *gin.Context) {
 		c.Abort() //阻止后续中间件的调用
 		return    //终止该函数
 	}
-	//从载荷中提取用户名信息
-	username := payload.Username
+	//从载荷中提取用户ID信息
+	userId := payload.ID
 	//查找是否存在该用户信息
-	if _, err = dao.GetUserByUsername(username); err != nil {
+	if _, err = user_dao.GetUserById(userId); err != nil {
 		c.JSON(http.StatusUnauthorized, rsp.Error(rsp.WithMsg("您的用户鉴权无效")))
 		c.Abort() //阻止后续中间件调用
 		return    //终止该函数

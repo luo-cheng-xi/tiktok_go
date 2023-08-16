@@ -14,15 +14,14 @@ import (
 func GetById(c *gin.Context) {
 	//解析参数
 	userIdStr := c.Query("user_id")
-
-	userId, err := strconv.ParseInt(userIdStr, 10, 64)
+	userId, err := strconv.ParseUint(userIdStr, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusOK, rsp.Error(rsp.WithMsg(err.Error())))
 		return
 	}
 
 	//调用service层代码
-	userInfo, err := user_service.GetById(userId)
+	userInfo, err := user_service.GetById(uint(userId))
 	if err != nil {
 		c.JSON(http.StatusOK, rsp.Error(rsp.WithMsg(err.Error())))
 		return

@@ -8,14 +8,14 @@ import (
 )
 
 type Payload struct {
-	Username string `json:"username"`
+	ID uint
 	jwt.RegisteredClaims
 }
 
-// GetJwt 通过username参数得到JWT令牌
-func GetJwt(username string) string {
+// GetJwt 通过用户id参数得到JWT令牌
+func GetJwt(id uint) string {
 	claims := Payload{
-		username,
+		id,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // 过期时间24小时
 			IssuedAt:  jwt.NewNumericDate(time.Now()),                     // 签发时间
