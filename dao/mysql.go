@@ -8,12 +8,10 @@ import (
 	"tiktok/model/po"
 )
 
-var (
-	DB *gorm.DB
-)
+var DB *gorm.DB
 
 // InitMysql 初始化mysql连接
-func InitMysql() {
+func init() {
 	//初始化数据库连接
 	DB, _ = gorm.Open(
 		mysql.Open(mysql_conf.DSN), &gorm.Config{
@@ -26,7 +24,7 @@ func InitMysql() {
 func InitTables() {
 	err := DB.AutoMigrate(
 		&po.User{}, &po.Video{}, &po.AuthorVideo{}, &po.Follow{},
-		&po.Comment{}, &po.Favorite{}, &po.Message{}, &po.Friend{},
+		&po.Comment{}, &po.Favorite{}, &po.Message{},
 	)
 	if err != nil {
 		fmt.Println("autoMigrate error !!!")

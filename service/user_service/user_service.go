@@ -68,3 +68,7 @@ func GetById(id int64) (po.User, error) {
 	}
 	return user, nil
 }
+
+func GetFollowCount(userId uint) {
+
+}
