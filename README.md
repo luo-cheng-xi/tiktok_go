@@ -1,7 +1,18 @@
 # tiktok_go
 字节跳动青训营后端项目go语言实现
 
-
-## 技术
-
-使用 gin,gorm,mysql和goland-jwt,gopkg.in 等
+```
+|- api              controller实现
+|- bin              用来糊弄go build的（out put directory
+|- configs          用来存配置文件，无代码
+|- internal         api接口的内部实现
+    |-  cache       缓存接口
+    |-  conf        用于加载配置信息的包，类似Spring Boot中的Properties
+    |-  dao         dao层
+    |-  middleware  中间件
+    |-  service     service层
+    |-  terrs       tiktok errors的缩写，用于存放自定义的错误信息和错误码等
+|- pkg              用于存放公共接口
+    |-  logging     日志相关
+    |-  util        工具类
+```
