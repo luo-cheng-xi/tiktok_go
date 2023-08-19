@@ -7,22 +7,13 @@ import (
 	"tiktok/internal/terrs"
 )
 
-/*
-GetUserByUsername 通过用户名获取用户信息
-Param:
-
-	username 用户名
-
-Return:
-
-	po.User 用户信息结构体
-	error   错误
-*/
+// GetUserByUsername 通过用户名获取用户信息
+//
+// error : ErrorUserNotFound
 func GetUserByUsername(username string) (model.User, error) {
 	//查找用户名条件相符的用户
 	user := model.User{}
 	err := DB.Where("username = ?", username).Take(&user).Error
-
 	//异常处理
 	if err != nil {
 		//没有找到该用户
@@ -30,12 +21,14 @@ func GetUserByUsername(username string) (model.User, error) {
 			return model.User{}, terrs.ErrUserNotFound
 		}
 		//出现未知的异常
-		return model.User{}, terrs.ErrInternal
+		return model.User{}, err
 	}
-
 	return user, nil
 }
 
+// GetUserById 通过用户Id获取用户信息
+//
+// error : ErrUserNotFound
 func GetUserById(id uint) (model.User, error) {
 	//查找id条件相符的用户
 	user := model.User{}
@@ -47,7 +40,7 @@ func GetUserById(id uint) (model.User, error) {
 			return model.User{}, terrs.ErrUserNotFound
 		}
 		//出现未知的异常
-		return model.User{}, terrs.ErrInternal
+		return model.User{}, err
 	}
 
 	//返回用户信息

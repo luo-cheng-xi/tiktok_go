@@ -1,14 +1,15 @@
 package service
 
 import (
-	"log"
 	"tiktok/internal/dao"
 	"tiktok/internal/model"
 	"tiktok/internal/terrs"
 	"tiktok/pkg/util"
 )
 
-// Register 用于支持controller中的注册功能
+// Register 用户注册功能
+//
+// error : ErrUsernameRegistered
 func Register(username, password string) (uint, string, error) {
 	_, err := dao.GetUserByUsername(username)
 	//err == nil时，说明通过用户名找到了该用户，返回
@@ -34,50 +35,41 @@ func Register(username, password string) (uint, string, error) {
 	return id, token, nil
 }
 
-/*
-Login
-Param
-
-	username
-	password
-
-Return
-
-	uint 用户id
-	string token令牌
-	error
-		可能返回自定义的
-		ErrUserNotFound
-		ErrPasswordWrong
-		或者内部异常
-*/
+// Login 用户登录功能
+//
+// error: ErrPasswordWrong | ErrUserNotFound
 func Login(username, password string) (uint, string, error) {
 	//查找是否存在该用户名的用户
 	user, err := dao.GetUserByUsername(username)
 	if err != nil {
-		return 0, "", terrs.ErrUserNotFound
+		return 0, "", err
 	}
 
 	//校验密码是否正确
 	flag, err := util.MatchPasswordAndHash(password, user.Password)
-	if !flag || err != nil {
+	//如果出错，抛错误；如果不正确，抛ErrPasswordWrong
+	if err != nil {
+		return 0, "", err
+	} else if !flag {
 		return 0, "", terrs.ErrPasswordWrong
 	}
 	//密码正确，返回用户id,token令牌，nil
 	return user.ID, util.GetJwt(user.ID), nil
 }
 
-// GetById 获
+// GetById 通过Id获得用户信息
+//
+// error : ErrUserNotFound
 func GetById(id uint) (model.User, error) {
 	//调用dao层获取用户信息
 	user, err := dao.GetUserById(id)
 	if err != nil {
-		log.Default().Println(err)
 		return model.User{}, err
 	}
 	return user, nil
 }
 
+// GetFollowCount 通过用户Id获得用户关注人数
 func GetFollowCount(userId uint) {
 	dao.GetFollowCount(userId)
 }

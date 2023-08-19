@@ -10,9 +10,15 @@
     |-  conf        用于加载配置信息的包，类似Spring Boot中的Properties
     |-  dao         dao层
     |-  middleware  中间件
+    |-  model       实体类包 
     |-  service     service层
     |-  terrs       tiktok errors的缩写，用于存放自定义的错误信息和错误码等
 |- pkg              用于存放公共接口
     |-  logging     日志相关
     |-  util        工具类
 ```
+
+如果需要运行请对`/configs/conf.ini`文件进行适当修改
+
+错误处理流程：\
+有事务则在service解决，否则抛到controller。\

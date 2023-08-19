@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"runtime/debug"
@@ -18,8 +17,7 @@ func initRouter(r *gin.Engine) {
 		defer func() {
 			if err := recover(); err != nil {
 				debug.PrintStack()
-				c.AbortWithStatusJSON(http.StatusInternalServerError,
-					model.NewErrorRsp(terrs.UNKNOWN, model.WithMsg(fmt.Sprint(err))))
+				c.AbortWithStatusJSON(http.StatusInternalServerError, model.NewErrorRsp(terrs.ErrInternal))
 			}
 		}()
 		c.Next()

@@ -27,18 +27,29 @@ func (u *UserController) GetById(c *gin.Context) {
 	userId, err := strconv.ParseUint(userIdStr, 10, 64)
 	if err != nil {
 		u.logger.Error("strconv.ParseUint error : ", zap.String("detail", err.Error()))
-		c.Error(err)
-		c.Abort()
+
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			model.NewErrorRsp(terrs.ErrInternal))
 		return
 	}
+
 	//调用service层代码
 	userInfo, err := service.GetById(uint(userId))
 	if err != nil {
+		if terrs.ErrUserNotFound.Eq(err) {
+			c.AbortWithStatusJSON(
+				http.StatusBadRequest,
+				model.NewErrorRsp(terrs.ErrUserNotFound))
+			return
+		}
 		u.logger.Error("service.GetById() error : ", zap.String("detail", err.Error()))
-		c.Error(err)
-		c.Abort()
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			model.NewErrorRsp(terrs.ErrInternal))
 		return
 	}
+
 	//封装返回值,并返回结果
 	c.JSON(http.StatusOK, model.UserRsp{
 		BaseRsp: model.NewSuccessRsp(),
@@ -47,25 +58,28 @@ func (u *UserController) GetById(c *gin.Context) {
 }
 
 // Register 注册功能
-func (*UserController) Register(c *gin.Context) {
+func (u *UserController) Register(c *gin.Context) {
 	//解析参数
 	username := c.Query("username")
 	password := c.Query("password")
 
 	//检查参数是否合法
 	if len(username) > 32 {
-		c.Error(terrs.ErrUsernameTooLong)
-		c.Abort()
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			model.NewErrorRsp(terrs.ErrUsernameTooLong))
 		return
 	}
 	if len(password) <= 5 {
-		c.Error(terrs.ErrPasswordTooShort)
-		c.Abort()
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			model.NewErrorRsp(terrs.ErrPasswordTooShort))
 		return
 	}
 	if len(password) > 32 {
-		c.Error(terrs.ErrPasswordTooLong)
-		c.Abort()
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			model.NewErrorRsp(terrs.ErrPasswordTooLong))
 		return
 	}
 
@@ -73,62 +87,82 @@ func (*UserController) Register(c *gin.Context) {
 	id, token, err := service.Register(username, password)
 	//该用户已存在，或者出现其他错误
 	if err != nil {
-		//返回错误信息
-		c.Error(err)
-		c.Abort()
+		if terrs.ErrUsernameRegistered.Eq(err) {
+			c.AbortWithStatusJSON(
+				http.StatusBadRequest,
+				model.NewErrorRsp(err))
+			return
+		}
+		u.logger.Error("service.Register error : ", zap.String("detail", err.Error()))
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			model.NewErrorRsp(terrs.ErrInternal))
 		return
 	}
+
 	//用户不存在，注册完成，返回id和token
-	c.JSON(http.StatusOK, model.IdAndTokenRsp{
-		BaseRsp: model.NewSuccessRsp(),
-		Id:      id,
-		Token:   token,
-	})
+	c.JSON(
+		http.StatusOK,
+		model.IdAndTokenRsp{
+			BaseRsp: model.NewSuccessRsp(),
+			Id:      id,
+			Token:   token,
+		})
 }
 
 // Login 登录功能
-func (*UserController) Login(c *gin.Context) {
+func (u *UserController) Login(c *gin.Context) {
 	//解析参数
 	username := c.Query("username")
 	password := c.Query("password")
 
-	//检查参数是否合法
 	if len(username) > 32 {
-		c.Error(terrs.ErrUsernameTooLong)
-		c.Abort()
+		// 用户名过长，返回错误信息
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			model.NewErrorRsp(terrs.ErrUsernameTooLong))
 		return
 	}
 	if len(password) <= 5 {
-		c.Error(terrs.ErrPasswordTooShort)
-		c.Abort()
+		// 密码过短，返回错误信息
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			model.NewErrorRsp(terrs.ErrPasswordTooShort))
 		return
 	}
 	if len(password) > 32 {
-		c.Error(terrs.ErrPasswordTooShort)
-		c.Abort()
+		// 密码过长，返回错误信息
+		c.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			model.NewErrorRsp(terrs.ErrPasswordTooLong))
 		return
 	}
 
 	//调用service层代码
 	id, token, err := service.Login(username, password)
 	if err != nil {
-		//对于没有找到用户和没有找到密码的情况，进行处理。其他异常情况直接作为内部异常告知前端
 		if terrs.ErrUserNotFound.Eq(err) || terrs.ErrPasswordWrong.Eq(err) {
+			//对于找不到该用户和密码错误的情况，将错误信息告知前端
 			c.AbortWithStatusJSON(
 				http.StatusBadRequest,
-				model.NewErrorRsp(terrs.INTERNAL, model.WithMsg(err.Error())))
-		} else {
-			c.AbortWithStatusJSON(
-				http.StatusInternalServerError,
-				model.NewErrorRsp(terrs.INTERNAL, model.WithMsg(terrs.ErrInternal.Error())))
+				model.NewErrorRsp(err.(terrs.TError)))
+			return
 		}
+		//对于其它的服务器内部出现的错误，告知前端服务器存在内部错误，在控制台打印日志
+		u.logger.Error("service.Login error : ", zap.String("error", err.Error()))
+		c.AbortWithStatusJSON(
+			http.StatusInternalServerError,
+			model.NewErrorRsp(terrs.ErrInternal))
+
 		return
 	}
 
 	//登录信息无误，返回id和token
-	c.JSON(http.StatusOK, model.IdAndTokenRsp{
-		BaseRsp: model.NewSuccessRsp(),
-		Id:      id,
-		Token:   token,
-	})
+	c.JSON(
+		http.StatusOK,
+		model.IdAndTokenRsp{
+			BaseRsp: model.NewSuccessRsp(),
+			Id:      id,
+			Token:   token,
+		})
 }

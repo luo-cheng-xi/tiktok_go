@@ -1,6 +1,8 @@
 package model
 
-import "tiktok/internal/terrs"
+import (
+	"tiktok/internal/terrs"
+)
 
 type BaseRsp struct {
 	StatusCode    terrs.StatusCode `json:"status_code"`
@@ -21,13 +23,20 @@ type UserRsp struct {
 // Option 用于支持Error函数的options模式
 type Option func(msg *BaseRsp)
 
-// NewErrorRsp 用于产生用于错误的BaseRsp
-func NewErrorRsp(code terrs.StatusCode, opt ...Option) BaseRsp {
-	resp := BaseRsp{StatusCode: code}
-	for _, o := range opt {
-		o(&resp)
+// NewErrorRsp 通过TError信息包装BaseRsp
+func NewErrorRsp(e error) BaseRsp {
+	if terr, ok := e.(terrs.TError); ok {
+		//是TError类型，直接包装TError信息
+		return BaseRsp{
+			StatusCode:    terr.Code,
+			StatusMessage: terr.Error(),
+		}
 	}
-	return resp
+	//不是TError类型，返回
+	return BaseRsp{
+		StatusCode:    terrs.INTERNAL,
+		StatusMessage: e.Error(),
+	}
 }
 
 // NewSuccessRsp 用于产生表示成功的BaseRsp
