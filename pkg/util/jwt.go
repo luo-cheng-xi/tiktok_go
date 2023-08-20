@@ -55,3 +55,12 @@ func (rx *JwtUtil) ParseJwt(tokenString string) (*Payload, error) {
 		return nil, err
 	}
 }
+
+// GetUserIdFromJwt 从Jwt令牌中获取用户ID信息
+func (rx *JwtUtil) GetUserIdFromJwt(tokenString string) (uint, error) {
+	load, err := rx.ParseJwt(tokenString)
+	if err != nil {
+		return 0, err
+	}
+	return load.ID, nil
+}

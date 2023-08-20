@@ -30,7 +30,11 @@ func BuildInjector() (*Injector, error) {
 	jwtUtil := util.GetJwtUtil(jwtConfig)
 	userService := service.NewUserService(logger, userDao, jwtUtil)
 	userController := api.NewUserController(logger, userService)
-	videoController := api.NewVideoController(logger)
+	ossConfig := conf.GetOSSConf()
+	ossUtil := util.GetOssUtil(ossConfig)
+	videoDao := data.NewVideoDao(logger, dataData)
+	videoService := service.NewVideoService(logger, ossUtil, videoDao)
+	videoController := api.NewVideoController(logger, ossUtil, jwtUtil, videoService)
 	loginCheckMiddleware := middleware.NewLoginCheck(userService, jwtUtil)
 	injector := InitInjector(userController, videoController, loginCheckMiddleware)
 	return injector, nil

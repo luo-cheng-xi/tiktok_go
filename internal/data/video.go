@@ -18,12 +18,9 @@ func NewVideoDao(l *zap.Logger, d *Data) *VideoDao {
 	}
 }
 
-// Create 保存视频信息
-func (v *VideoDao) Create(video model.Video) (uint, error) {
+// CreateVideo 保存视频信息,返回视频id
+func (v *VideoDao) CreateVideo(video model.Video) uint {
 	//操作Video表，保存video对象
 	v.db.Create(&video)
-	if err != nil {
-		return
-	}
-
+	return video.ID
 }

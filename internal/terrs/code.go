@@ -176,27 +176,26 @@ const (
 	DATA_LOSS = 15
 )
 
-var m = map[StatusCode]string{
-	OK:                  "OK",
-	CANCELLED:           "CANCELLED",
-	UNKNOWN:             "UNKNOWN",
-	INVALID_ARGUMENT:    "INVALID_ARGUMENT",
-	DEADLINE_EXCEEDED:   "DEADLINE_EXCEEDED",
-	NOT_FOUND:           "NOT_FOUND",
-	ALREADY_EXISTS:      "ALREADY_EXISTS",
-	PERMISSION_DENIED:   "PERMISSION_DENIED",
-	UNAUTHENTICATED:     "UNAUTHENTICATED",
-	RESOURCE_EXHAUSTED:  "RESOURCE_EXHAUSTED",
-	FAILED_PRECONDITION: "FAILED_PRECONDITION",
-	ABORTED:             "ABORTED",
-	OUT_OF_RANGE:        "OUT_OF_RANGE",
-	UNIMPLEMENTED:       "UNIMPLEMENTED",
-	INTERNAL:            "INTERNAL",
-	UNAVAILABLE:         "UNAVAILABLE",
-	DATA_LOSS:           "DATA_LOSS",
+var httpCode = map[StatusCode]int{
+	OK:                  200,
+	CANCELLED:           499,
+	UNKNOWN:             500,
+	INVALID_ARGUMENT:    400,
+	DEADLINE_EXCEEDED:   504,
+	NOT_FOUND:           404,
+	ALREADY_EXISTS:      409,
+	PERMISSION_DENIED:   403,
+	UNAUTHENTICATED:     401,
+	RESOURCE_EXHAUSTED:  429,
+	FAILED_PRECONDITION: 400,
+	ABORTED:             409,
+	OUT_OF_RANGE:        400,
+	UNIMPLEMENTED:       501,
+	INTERNAL:            500,
+	UNAVAILABLE:         503,
+	DATA_LOSS:           500,
 }
 
-// 调用.String方法，返回状态码对应的字符串
-func (e StatusCode) String() string {
-	return m[e]
+func (t TError) GetHttpCode() int {
+	return httpCode[t.Code]
 }

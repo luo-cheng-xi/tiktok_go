@@ -29,25 +29,14 @@ func (rx *UserController) GetById(c *gin.Context) {
 	userId, err := strconv.ParseUint(userIdStr, 10, 64)
 	if err != nil {
 		rx.logger.Error("strconv.ParseUint error : ", zap.String("detail", err.Error()))
-
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			model.NewErrorRsp(terrs.ErrInternal))
+		model.AbortWithStatusErrJSON(c, err)
 		return
 	}
 
 	//调用service层代码
 	userInfo, err := rx.userService.GetById(uint(userId))
 	if err != nil {
-		if terrs.ErrUserNotFound.Eq(err) {
-			c.AbortWithStatusJSON(
-				http.StatusBadRequest,
-				model.NewErrorRsp(terrs.ErrUserNotFound))
-			return
-		}
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			model.NewErrorRsp(terrs.ErrInternal))
+		model.AbortWithStatusErrJSON(c, err)
 		return
 	}
 
@@ -66,36 +55,22 @@ func (rx *UserController) Register(c *gin.Context) {
 
 	//检查参数是否合法
 	if len(username) > 32 {
-		c.AbortWithStatusJSON(
-			http.StatusBadRequest,
-			model.NewErrorRsp(terrs.ErrUsernameTooLong))
+		model.AbortWithStatusErrJSON(c, terrs.ErrUsernameTooLong)
 		return
 	}
 	if len(password) <= 5 {
-		c.AbortWithStatusJSON(
-			http.StatusBadRequest,
-			model.NewErrorRsp(terrs.ErrPasswordTooShort))
+		model.AbortWithStatusErrJSON(c, terrs.ErrPasswordTooShort)
 		return
 	}
 	if len(password) > 32 {
-		c.AbortWithStatusJSON(
-			http.StatusBadRequest,
-			model.NewErrorRsp(terrs.ErrPasswordTooLong))
+		model.AbortWithStatusErrJSON(c, terrs.ErrPasswordTooLong)
 		return
 	}
 
+	//调用service层代码
 	id, token, err := rx.userService.Register(username, password)
-	//该用户已存在，或者出现其他错误
 	if err != nil {
-		if terrs.ErrUsernameRegistered.Eq(err) {
-			c.AbortWithStatusJSON(
-				http.StatusBadRequest,
-				model.NewErrorRsp(err))
-			return
-		}
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			model.NewErrorRsp(terrs.ErrInternal))
+		model.AbortWithStatusErrJSON(c, err)
 		return
 	}
 
@@ -115,43 +90,24 @@ func (rx *UserController) Login(c *gin.Context) {
 	username := c.Query("username")
 	password := c.Query("password")
 
+	//检查参数是否合法
 	if len(username) > 32 {
-		// 用户名过长，返回错误信息
-		c.AbortWithStatusJSON(
-			http.StatusBadRequest,
-			model.NewErrorRsp(terrs.ErrUsernameTooLong))
+		model.AbortWithStatusErrJSON(c, terrs.ErrUsernameTooLong)
 		return
 	}
 	if len(password) <= 5 {
-		// 密码过短，返回错误信息
-		c.AbortWithStatusJSON(
-			http.StatusBadRequest,
-			model.NewErrorRsp(terrs.ErrPasswordTooShort))
+		model.AbortWithStatusErrJSON(c, terrs.ErrPasswordTooShort)
 		return
 	}
 	if len(password) > 32 {
-		// 密码过长，返回错误信息
-		c.AbortWithStatusJSON(
-			http.StatusBadRequest,
-			model.NewErrorRsp(terrs.ErrPasswordTooLong))
+		model.AbortWithStatusErrJSON(c, terrs.ErrPasswordTooLong)
 		return
 	}
 
 	//调用service层代码
 	id, token, err := rx.userService.Login(username, password)
 	if err != nil {
-		if terrs.ErrUserNotFound.Eq(err) || terrs.ErrPasswordWrong.Eq(err) {
-			//对于找不到该用户和密码错误的情况，将错误信息告知前端
-			c.AbortWithStatusJSON(
-				http.StatusBadRequest,
-				model.NewErrorRsp(err.(terrs.TError)))
-			return
-		}
-		//对于其它的服务器内部出现的错误，告知前端服务器存在内部错误
-		c.AbortWithStatusJSON(
-			http.StatusInternalServerError,
-			model.NewErrorRsp(terrs.ErrInternal))
-
+		model.AbortWithStatusErrJSON(c, err)
 		return
 	}
 

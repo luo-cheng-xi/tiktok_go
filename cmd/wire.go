@@ -20,8 +20,8 @@ func BuildInjector() (*Injector, error) {
 		api.NewUserController,
 		api.NewVideoController,
 		middleware.NewLoginCheck,
-		service.NewUserService,
 
+		service.ProviderSet,
 		data.ProviderSet,
 		conf.ProviderSet,
 		util.ProviderSet,
