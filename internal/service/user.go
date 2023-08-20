@@ -46,11 +46,10 @@ func (u *UserService) Register(username, password string) (uint, string, error) 
 		Username: username,
 		Password: encodePassword,
 	}
-	u.userDao.Create(&user)
 	//返回用户的id和token
-	id := user.ID
-	token := u.jwtUtil.GetJwt(id)
-	return id, token, nil
+	userId := u.userDao.CreateUser(user)
+	token := u.jwtUtil.GetJwt(userId)
+	return userId, token, nil
 }
 
 // Login 用户登录功能

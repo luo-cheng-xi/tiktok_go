@@ -60,6 +60,8 @@ func (rx *UserDao) GetUserById(id uint) (model.User, error) {
 	return user, nil
 }
 
-func (rx *UserDao) Create(user *model.User) {
+// CreateUser 创建用户，并返回主键id
+func (rx *UserDao) CreateUser(user model.User) uint {
 	rx.db.Create(&user)
+	return user.ID
 }

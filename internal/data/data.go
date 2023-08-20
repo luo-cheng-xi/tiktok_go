@@ -34,7 +34,7 @@ func autoMigrate(db *gorm.DB) error {
 	err := db.AutoMigrate(
 		&model.User{},
 		&model.Video{},
-		&model.AuthorVideo{},
+		//&model.AuthorVideo{},
 		&model.Follow{},
 		&model.Comment{},
 		&model.Favorite{},

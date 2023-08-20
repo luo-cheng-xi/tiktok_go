@@ -41,7 +41,7 @@ type Video struct {
 	gorm.Model
 
 	Title    string
-	AuthorId string `gorm:"index:idx_author_id"`
+	AuthorId uint `gorm:"index:idx_author_id"`
 	PlayUrl  string
 	CoverUrl string
 }
@@ -57,15 +57,15 @@ func (v *Video) BeforeCreate(*gorm.DB) error {
 	return nil
 }
 
-// AuthorVideo 作者-视频关系表
-// 唯一索引 AuthorId -> VideoId
-// 普通索引 VideoId
-type AuthorVideo struct {
-	gorm.Model
-
-	AuthorId int64 `gorm:"uniqueIndex:idx_author_video"`
-	VideoId  int64 `gorm:"uniqueIndex:idx_author_video;index:idx_video"`
-}
+//// AuthorVideo 作者-视频关系表
+//// 唯一索引 AuthorId -> VideoId
+//// 普通索引 VideoId
+//type AuthorVideo struct {
+//	gorm.Model
+//
+//	AuthorId int64 `gorm:"uniqueIndex:idx_author_video"`
+//	VideoId  int64 `gorm:"uniqueIndex:idx_author_video;index:idx_video"`
+//}
 
 // Favorite 点赞表
 // 唯一索引 UserId -> VideoId

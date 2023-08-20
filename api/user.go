@@ -45,7 +45,6 @@ func (rx *UserController) GetById(c *gin.Context) {
 				model.NewErrorRsp(terrs.ErrUserNotFound))
 			return
 		}
-		rx.logger.Error("service.GetById() error : ", zap.String("detail", err.Error()))
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			model.NewErrorRsp(terrs.ErrInternal))
@@ -94,7 +93,6 @@ func (rx *UserController) Register(c *gin.Context) {
 				model.NewErrorRsp(err))
 			return
 		}
-		rx.logger.Error("service.Register error : ", zap.String("detail", err.Error()))
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			model.NewErrorRsp(terrs.ErrInternal))
@@ -149,8 +147,7 @@ func (rx *UserController) Login(c *gin.Context) {
 				model.NewErrorRsp(err.(terrs.TError)))
 			return
 		}
-		//对于其它的服务器内部出现的错误，告知前端服务器存在内部错误，在控制台打印日志
-		rx.logger.Error("service.Login error : ", zap.String("error", err.Error()))
+		//对于其它的服务器内部出现的错误，告知前端服务器存在内部错误
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			model.NewErrorRsp(terrs.ErrInternal))
