@@ -1,17 +1,35 @@
 package service
 
 import (
-	"tiktok/internal/dao"
+	"go.uber.org/zap"
+	"tiktok/internal/data"
 	"tiktok/internal/model"
 	"tiktok/internal/terrs"
 	"tiktok/pkg/util"
 )
 
+type UserService struct {
+	logger  *zap.Logger
+	userDao *data.UserDao
+	jwtUtil *util.JwtUtil
+}
+
+func NewUserService(
+	l *zap.Logger,
+	ud *data.UserDao,
+	ju *util.JwtUtil) *UserService {
+	return &UserService{
+		logger:  l,
+		userDao: ud,
+		jwtUtil: ju,
+	}
+}
+
 // Register 用户注册功能
 //
 // error : ErrUsernameRegistered
-func Register(username, password string) (uint, string, error) {
-	_, err := dao.GetUserByUsername(username)
+func (u *UserService) Register(username, password string) (uint, string, error) {
+	_, err := u.userDao.GetUserByUsername(username)
 	//err == nil时，说明通过用户名找到了该用户，返回
 	if err == nil {
 		return 0, "", terrs.ErrUsernameRegistered
@@ -28,19 +46,19 @@ func Register(username, password string) (uint, string, error) {
 		Username: username,
 		Password: encodePassword,
 	}
-	dao.DB.Create(&user)
+	u.userDao.Create(&user)
 	//返回用户的id和token
 	id := user.ID
-	token := util.GetJwt(id)
+	token := u.jwtUtil.GetJwt(id)
 	return id, token, nil
 }
 
 // Login 用户登录功能
 //
 // error: ErrPasswordWrong | ErrUserNotFound
-func Login(username, password string) (uint, string, error) {
+func (u *UserService) Login(username, password string) (uint, string, error) {
 	//查找是否存在该用户名的用户
-	user, err := dao.GetUserByUsername(username)
+	user, err := u.userDao.GetUserByUsername(username)
 	if err != nil {
 		return 0, "", err
 	}
@@ -54,15 +72,15 @@ func Login(username, password string) (uint, string, error) {
 		return 0, "", terrs.ErrPasswordWrong
 	}
 	//密码正确，返回用户id,token令牌，nil
-	return user.ID, util.GetJwt(user.ID), nil
+	return user.ID, u.jwtUtil.GetJwt(user.ID), nil
 }
 
 // GetById 通过Id获得用户信息
 //
 // error : ErrUserNotFound
-func GetById(id uint) (model.User, error) {
+func (u *UserService) GetById(id uint) (model.User, error) {
 	//调用dao层获取用户信息
-	user, err := dao.GetUserById(id)
+	user, err := u.userDao.GetUserById(id)
 	if err != nil {
 		return model.User{}, err
 	}
@@ -71,5 +89,5 @@ func GetById(id uint) (model.User, error) {
 
 // GetFollowCount 通过用户Id获得用户关注人数
 func GetFollowCount(userId uint) {
-	dao.GetFollowCount(userId)
+	data.GetFollowCount(userId)
 }

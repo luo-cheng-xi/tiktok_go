@@ -19,6 +19,3 @@
 ```
 
 如果需要运行请对`/configs/conf.ini`文件进行适当修改
-
-错误处理流程：\
-有事务则在service解决，否则抛到controller。\

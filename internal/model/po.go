@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+var defaultConf = conf.GetDefaultConf()
+
 // User 用户实体类
 // 唯一联合索引 Username -> Password
 type User struct {
@@ -25,10 +27,10 @@ func (u *User) Reg() {
 // BeforeCreate Hook函数，用户设置用户的默认信息
 func (u *User) BeforeCreate(*gorm.DB) error {
 	if u.Avatar == "" {
-		u.Avatar = conf.Default.UserAvatar
+		u.Avatar = defaultConf.UserAvatar
 	}
 	if u.BackgroundImage == "" {
-		u.BackgroundImage = conf.Default.BackGroundImage
+		u.BackgroundImage = defaultConf.BackGroundImage
 	}
 	return nil
 }
@@ -47,10 +49,10 @@ type Video struct {
 // BeforeCreate Hook函数，设置视频默认信息
 func (v *Video) BeforeCreate(*gorm.DB) error {
 	if v.Title == "" {
-		v.Title = conf.Default.VideoTitle
+		v.Title = defaultConf.VideoTitle
 	}
 	if v.CoverUrl == "" {
-		v.Title = conf.Default.VideoCover
+		v.Title = defaultConf.VideoCover
 	}
 	return nil
 }

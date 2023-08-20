@@ -4,19 +4,17 @@ import (
 	"gopkg.in/ini.v1"
 )
 
-type jwtConfig struct {
+type JwtConfig struct {
 	SignedKey string
 }
 
-var Jwt = loadJwtConfig()
-
-func loadJwtConfig() jwtConfig {
+// GetJwtConf 获取Jwt配置
+func GetJwtConf() *JwtConfig {
 	cfg, err := ini.Load("./configs/conf.ini")
 	if err != nil {
 		panic("jwt_conf ini文件读取异常")
 	}
-	ret := jwtConfig{
-		cfg.Section("jwt").Key("signedKey").String(),
+	return &JwtConfig{
+		SignedKey: cfg.Section("jwt").Key("signedKey").String(),
 	}
-	return ret
 }

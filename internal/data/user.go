@@ -1,19 +1,32 @@
-package dao
+package data
 
 import (
 	"errors"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"tiktok/internal/model"
 	"tiktok/internal/terrs"
 )
 
+type UserDao struct {
+	logger *zap.Logger
+	db     *gorm.DB
+}
+
+func NewUserDao(l *zap.Logger, d *Data) *UserDao {
+	return &UserDao{
+		logger: l,
+		db:     d.DB,
+	}
+}
+
 // GetUserByUsername 通过用户名获取用户信息
 //
 // error : ErrorUserNotFound
-func GetUserByUsername(username string) (model.User, error) {
+func (rx *UserDao) GetUserByUsername(username string) (model.User, error) {
 	//查找用户名条件相符的用户
 	user := model.User{}
-	err := DB.Where("username = ?", username).Take(&user).Error
+	err := rx.db.Where("username = ?", username).Take(&user).Error
 	//异常处理
 	if err != nil {
 		//没有找到该用户
@@ -29,10 +42,10 @@ func GetUserByUsername(username string) (model.User, error) {
 // GetUserById 通过用户Id获取用户信息
 //
 // error : ErrUserNotFound
-func GetUserById(id uint) (model.User, error) {
+func (rx *UserDao) GetUserById(id uint) (model.User, error) {
 	//查找id条件相符的用户
 	user := model.User{}
-	err := DB.Where("id = ?", id).Take(&user).Error
+	err := rx.db.Where("id = ?", id).Take(&user).Error
 
 	//处理 没有找到的情况 和 异常情况
 	if err != nil {
@@ -45,4 +58,8 @@ func GetUserById(id uint) (model.User, error) {
 
 	//返回用户信息
 	return user, nil
+}
+
+func (rx *UserDao) Create(user *model.User) {
+	rx.db.Create(&user)
 }

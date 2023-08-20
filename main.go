@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"tiktok/internal/dao"
+	"tiktok/cmd"
 )
 
 func main() {
@@ -20,10 +20,7 @@ func main() {
 	r := gin.Default()
 
 	//初始化路由
-	initRouter(r)
-
-	//初始化数据库表结构
-	dao.InitTables()
+	cmd.InitRouter(r)
 
 	err := r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 	if err != nil {

@@ -4,17 +4,24 @@ import (
 	"gopkg.in/ini.v1"
 )
 
-type dbConfig struct {
+type Database struct {
 	DSN      string
 	UserName string
 	Password string
 	Host     string
 	Schema   string
 }
+type Redis struct {
+}
+type Data struct {
+	Database *Database
+	Redis    *Redis
+}
 
-var DB = loadMysqlConfig()
-
-func loadMysqlConfig() dbConfig {
+func GetRedis() *Redis {
+	return &Redis{}
+}
+func GetDatabase() *Database {
 	cfg, err := ini.Load("./configs/conf.ini")
 	if err != nil {
 		panic("mysql_conf ini文件读取异常")
@@ -24,12 +31,17 @@ func loadMysqlConfig() dbConfig {
 	host := cfg.Section("database").Key("host").String()
 	schema := cfg.Section("database").Key("schema").String()
 	dsn := userName + ":" + password + "@tcp(" + host + ")/" + schema + "?charset=utf8mb4&parseTime=True"
-	ret := dbConfig{
+	return &Database{
 		UserName: userName,
 		Password: password,
 		Host:     host,
 		Schema:   schema,
 		DSN:      dsn,
 	}
-	return ret
+}
+func GetData() *Data {
+	return &Data{
+		Database: GetDatabase(),
+		Redis:    GetRedis(),
+	}
 }

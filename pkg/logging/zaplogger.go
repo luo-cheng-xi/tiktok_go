@@ -4,7 +4,11 @@ import (
 	"go.uber.org/zap"
 )
 
-var Logger = loadDebug()
+var logger = loadDebug()
+
+func NewLogger() *zap.Logger {
+	return logger
+}
 
 func loadDebug() *zap.Logger {
 	l, err := zap.NewProduction()

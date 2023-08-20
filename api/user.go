@@ -11,22 +11,24 @@ import (
 )
 
 type UserController struct {
-	logger *zap.Logger
+	logger      *zap.Logger
+	userService *service.UserService
 }
 
-func NewUserController() *UserController {
+func NewUserController(l *zap.Logger, us *service.UserService) *UserController {
 	return &UserController{
-		logger: zap.NewExample(),
+		logger:      l,
+		userService: us,
 	}
 }
 
 // GetById 用户信息获取功能
-func (u *UserController) GetById(c *gin.Context) {
+func (rx *UserController) GetById(c *gin.Context) {
 	//解析参数
 	userIdStr := c.Query("user_id")
 	userId, err := strconv.ParseUint(userIdStr, 10, 64)
 	if err != nil {
-		u.logger.Error("strconv.ParseUint error : ", zap.String("detail", err.Error()))
+		rx.logger.Error("strconv.ParseUint error : ", zap.String("detail", err.Error()))
 
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
@@ -35,7 +37,7 @@ func (u *UserController) GetById(c *gin.Context) {
 	}
 
 	//调用service层代码
-	userInfo, err := service.GetById(uint(userId))
+	userInfo, err := rx.userService.GetById(uint(userId))
 	if err != nil {
 		if terrs.ErrUserNotFound.Eq(err) {
 			c.AbortWithStatusJSON(
@@ -43,7 +45,7 @@ func (u *UserController) GetById(c *gin.Context) {
 				model.NewErrorRsp(terrs.ErrUserNotFound))
 			return
 		}
-		u.logger.Error("service.GetById() error : ", zap.String("detail", err.Error()))
+		rx.logger.Error("service.GetById() error : ", zap.String("detail", err.Error()))
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			model.NewErrorRsp(terrs.ErrInternal))
@@ -58,7 +60,7 @@ func (u *UserController) GetById(c *gin.Context) {
 }
 
 // Register 注册功能
-func (u *UserController) Register(c *gin.Context) {
+func (rx *UserController) Register(c *gin.Context) {
 	//解析参数
 	username := c.Query("username")
 	password := c.Query("password")
@@ -83,8 +85,7 @@ func (u *UserController) Register(c *gin.Context) {
 		return
 	}
 
-	//调用service层代码
-	id, token, err := service.Register(username, password)
+	id, token, err := rx.userService.Register(username, password)
 	//该用户已存在，或者出现其他错误
 	if err != nil {
 		if terrs.ErrUsernameRegistered.Eq(err) {
@@ -93,7 +94,7 @@ func (u *UserController) Register(c *gin.Context) {
 				model.NewErrorRsp(err))
 			return
 		}
-		u.logger.Error("service.Register error : ", zap.String("detail", err.Error()))
+		rx.logger.Error("service.Register error : ", zap.String("detail", err.Error()))
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			model.NewErrorRsp(terrs.ErrInternal))
@@ -111,7 +112,7 @@ func (u *UserController) Register(c *gin.Context) {
 }
 
 // Login 登录功能
-func (u *UserController) Login(c *gin.Context) {
+func (rx *UserController) Login(c *gin.Context) {
 	//解析参数
 	username := c.Query("username")
 	password := c.Query("password")
@@ -139,7 +140,7 @@ func (u *UserController) Login(c *gin.Context) {
 	}
 
 	//调用service层代码
-	id, token, err := service.Login(username, password)
+	id, token, err := rx.userService.Login(username, password)
 	if err != nil {
 		if terrs.ErrUserNotFound.Eq(err) || terrs.ErrPasswordWrong.Eq(err) {
 			//对于找不到该用户和密码错误的情况，将错误信息告知前端
@@ -149,7 +150,7 @@ func (u *UserController) Login(c *gin.Context) {
 			return
 		}
 		//对于其它的服务器内部出现的错误，告知前端服务器存在内部错误，在控制台打印日志
-		u.logger.Error("service.Login error : ", zap.String("error", err.Error()))
+		rx.logger.Error("service.Login error : ", zap.String("error", err.Error()))
 		c.AbortWithStatusJSON(
 			http.StatusInternalServerError,
 			model.NewErrorRsp(terrs.ErrInternal))
