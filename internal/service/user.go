@@ -74,10 +74,10 @@ func (u *UserService) Login(username, password string) (uint, string, error) {
 	return user.ID, u.jwtUtil.GetJwt(user.ID), nil
 }
 
-// GetById 通过Id获得用户信息
+// GetUserById 通过Id获得用户信息
 //
 // error : ErrUserNotFound
-func (u *UserService) GetById(id uint) (model.User, error) {
+func (u *UserService) GetUserById(id uint) (model.User, error) {
 	//调用dao层获取用户信息
 	user, err := u.userDao.GetUserById(id)
 	if err != nil {

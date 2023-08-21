@@ -36,7 +36,7 @@ func (rx *LoginCheckMiddleware) LoginCheck(c *gin.Context) {
 	//从载荷中提取用户ID信息
 	userId := payload.ID
 	//查找是否存在该用户信息
-	if _, err = rx.userService.GetById(userId); err != nil {
+	if _, err = rx.userService.GetUserById(userId); err != nil {
 		if terrs.ErrUserNotFound.Eq(err) {
 			c.AbortWithStatusJSON(
 				http.StatusBadRequest,

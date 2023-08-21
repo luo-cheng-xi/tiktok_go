@@ -22,8 +22,8 @@ func NewUserController(l *zap.Logger, us *service.UserService) *UserController {
 	}
 }
 
-// GetById 用户信息获取功能
-func (rx *UserController) GetById(c *gin.Context) {
+// GetUserById 用户信息获取功能
+func (rx *UserController) GetUserById(c *gin.Context) {
 	//解析参数
 	userIdStr := c.Query("user_id")
 	userId, err := strconv.ParseUint(userIdStr, 10, 64)
@@ -34,7 +34,7 @@ func (rx *UserController) GetById(c *gin.Context) {
 	}
 
 	//调用service层代码
-	userInfo, err := rx.userService.GetById(uint(userId))
+	userInfo, err := rx.userService.GetUserById(uint(userId))
 	if err != nil {
 		model.AbortWithStatusErrJSON(c, err)
 		return

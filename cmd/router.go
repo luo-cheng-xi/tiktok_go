@@ -25,7 +25,7 @@ func InitRouter(r *gin.Engine) {
 		c.Next()
 	})
 	{
-		apiRouter.GET("/user/", con.LoginCheckMiddleware.LoginCheck, con.UserController.GetById)
+		apiRouter.GET("/user/", con.LoginCheckMiddleware.LoginCheck, con.UserController.GetUserById)
 		apiRouter.POST("/user/register/", con.UserController.Register)
 		apiRouter.POST("/user/login/", con.UserController.Login)
 
