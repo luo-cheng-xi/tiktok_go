@@ -29,6 +29,8 @@ func InitRouter(r *gin.Engine) {
 		apiRouter.POST("/user/register/", con.UserController.Register)
 		apiRouter.POST("/user/login/", con.UserController.Login)
 
-		apiRouter.POST("/publish/action/", con.LoginCheckMiddleware.LoginCheck, con.VideoController.Publish)
+		// 根据接口文档，用户投稿token被放在了请求体中，由于投稿实现的第一步就是从token中获取用户id，可以起到登录校验作用，故将只能从请求头中的
+		// 登录校验中间件省去
+		apiRouter.POST("/publish/action/", con.VideoController.Publish)
 	}
 }
