@@ -14,7 +14,7 @@ type BaseRsp struct {
 type IdAndTokenRsp struct {
 	BaseRsp
 
-	Id    uint   `json:"user_id"`
+	Id    int64  `json:"user_id"`
 	Token string `json:"token"`
 }
 
@@ -29,6 +29,12 @@ type FeedRsp struct {
 
 	NextTime  int64     `json:"next_time"`
 	VideoList []VideoVO `json:"video_list"`
+}
+
+type VideoListRsp struct {
+	BaseRsp
+
+	VideoList []VideoVO
 }
 
 // Option 用于支持Error函数的options模式

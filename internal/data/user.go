@@ -42,7 +42,7 @@ func (rx *UserDao) GetUserByUsername(username string) (model.User, error) {
 // GetUserById 通过用户Id获取用户信息
 //
 // error : ErrUserNotFound
-func (rx *UserDao) GetUserById(id uint) (model.User, error) {
+func (rx *UserDao) GetUserById(id int64) (model.User, error) {
 	//查找id条件相符的用户
 	user := model.User{}
 	err := rx.db.Where("id = ?", id).Take(&user).Error
@@ -61,7 +61,7 @@ func (rx *UserDao) GetUserById(id uint) (model.User, error) {
 }
 
 // CreateUser 创建用户，并返回主键id
-func (rx *UserDao) CreateUser(user model.User) uint {
+func (rx *UserDao) CreateUser(user model.User) int64 {
 	rx.db.Create(&user)
 	return user.ID
 }

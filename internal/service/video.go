@@ -27,7 +27,7 @@ func NewVideoService(zl *zap.Logger, ou *util.OssUtil, dv *data.VideoDao, tc *co
 	}
 }
 
-func (s *VideoService) Publish(file *multipart.FileHeader, authorId uint, title string) error {
+func (s VideoService) Publish(file *multipart.FileHeader, authorId int64, title string) error {
 	//使用对象存储工具类进行文件上传
 	url, err := s.ossUtil.OSSUpload(file)
 	if err != nil {
@@ -48,7 +48,7 @@ func (s *VideoService) Publish(file *multipart.FileHeader, authorId uint, title 
 }
 
 // Feed 返回符合要求的时间早于latestTime的视频列表以及该列表中时间最早的视频更新时间
-func (s *VideoService) Feed(latestTime time.Time) ([]model.VideoVO, time.Time) {
+func (s VideoService) Feed(latestTime time.Time) ([]model.VideoVO, time.Time) {
 	// 调用dao层代码查询视频信息
 	videos := s.videoDao.ListVideoOrderByUpdateTime(s.tiktokConf.FeedSize, latestTime)
 	if len(videos) == 0 {
@@ -62,4 +62,28 @@ func (s *VideoService) Feed(latestTime time.Time) ([]model.VideoVO, time.Time) {
 
 	//返回结果
 	return videoVOs, videos[len(videos)-1].UpdatedAt
+}
+
+// ListVideoByAuthorId 列出指定作者的所有作品
+func (s VideoService) ListVideoByAuthorId(authorId int64) []model.VideoVO {
+	//调用dao层代码查询视频信息
+	videos := s.videoDao.ListVideoByAuthorId(authorId)
+
+	//将实体类转化为前端所需数据videoVO
+	var videoVOs = make([]model.VideoVO, len(videos))
+	for i, video := range videos {
+		videoVOs[i] = model.ParseVideoVO(video)
+	}
+	//返回结果
+	return videoVOs
+}
+
+// FavoriteAction 登录用户对于视频的点赞和取消点赞操作
+func (s VideoService) FavoriteAction(userId int64, videoId int64, actionType int32) {
+	if actionType == 1 {
+		s.videoDao.Favorite(userId, videoId)
+	} else if actionType == 2 {
+		s.videoDao.CancelFavorite(userId, videoId)
+	}
+
 }

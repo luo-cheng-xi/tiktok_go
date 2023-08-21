@@ -32,7 +32,7 @@ func NewVideoController(
 }
 
 // Publish 完成视频上传
-func (v *VideoController) Publish(c *gin.Context) {
+func (v VideoController) Publish(c *gin.Context) {
 	//解析参数
 	authorId, err := v.jwtUtil.GetUserIdFromJwt(c.PostForm("token"))
 	if err != nil {
@@ -59,7 +59,8 @@ func (v *VideoController) Publish(c *gin.Context) {
 }
 
 // Feed 视频流功能接口
-func (v *VideoController) Feed(c *gin.Context) {
+func (v VideoController) Feed(c *gin.Context) {
+	//解析参数
 	latestTimeStamp, err := strconv.ParseInt(c.Query("latest_time"), 10, 64)
 	if err != nil {
 		v.logger.Debug("字符串转时间错误 :", zap.String("cause", err.Error()))
@@ -68,10 +69,56 @@ func (v *VideoController) Feed(c *gin.Context) {
 	}
 	zone := time.FixedZone("CST", 8*3600) //设置为东8区
 	latestTime := time.UnixMilli(latestTimeStamp).In(zone)
-	videos, nextTime := v.videoService.Feed(latestTime)
+	videoVOs, nextTime := v.videoService.Feed(latestTime)
 	c.JSON(http.StatusOK, model.FeedRsp{
 		BaseRsp:   model.NewSuccessRsp(),
 		NextTime:  nextTime.UnixMilli(),
-		VideoList: videos,
+		VideoList: videoVOs,
 	})
+}
+
+// ListVideoByAuthorId 列出用户所有投稿过的视频
+func (v VideoController) ListVideoByAuthorId(c *gin.Context) {
+	//解析参数
+	//tokenString := c.Query("token")
+	//userId, err := v.jwtUtil.GetUserIdFromJwt(tokenString)
+	authorId, err := strconv.ParseInt(c.Query("user_id"), 10, 64)
+	if err != nil {
+		v.logger.Debug("作者id解析出错", zap.String("cause", err.Error()))
+		model.AbortWithStatusErrJSON(c, err)
+		return
+	}
+
+	//调用service层代码
+	videoVOs := v.videoService.ListVideoByAuthorId(authorId)
+	c.JSON(http.StatusOK, model.VideoListRsp{
+		BaseRsp:   model.NewSuccessRsp(),
+		VideoList: videoVOs,
+	})
+}
+
+func (v VideoController) FavoriteAction(c *gin.Context) {
+	//解析参数
+	userId, err := strconv.ParseInt(c.Query("token"), 10, 64)
+	if err != nil {
+		v.logger.Debug("无法从token中解析出用户id", zap.String("cause", err.Error()))
+		model.AbortWithStatusErrJSON(c, err)
+		return
+	}
+	videoId, err := strconv.ParseInt(c.Query("video_id"), 10, 64)
+	if err != nil {
+		v.logger.Debug("视频id解析出错", zap.String("cause", err.Error()))
+		model.AbortWithStatusErrJSON(c, err)
+		return
+	}
+	actionType, err := strconv.ParseInt(c.Query("action_type"), 10, 32)
+	if err != nil {
+		v.logger.Debug("actionType解析出错", zap.String("cause", err.Error()))
+		model.AbortWithStatusErrJSON(c, err)
+		return
+	}
+
+	//调用service层代码
+	v.videoService.FavoriteAction(userId, videoId, int32(actionType))
+
 }

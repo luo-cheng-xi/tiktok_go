@@ -12,12 +12,15 @@ var defaultConf = conf.GetTiktokConf()
 // User 用户实体类
 // 唯一联合索引 Username -> Password
 type User struct {
-	gorm.Model
+	ID              int64  `gorm:"primarykey"`
 	Username        string `gorm:"size:32;uniqueIndex:idx_username_password"`
 	Password        string `gorm:"size:120;uniqueIndex:idx_username_password"`
 	Avatar          string `gorm:"size:255"`
 	BackgroundImage string `gorm:"size:255"`
 	Signature       string `gorm:"size:200"`
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	DeletedAt       gorm.DeletedAt `gorm:"index"`
 }
 
 func (u *User) Reg() {
@@ -38,12 +41,14 @@ func (u *User) BeforeCreate(*gorm.DB) error {
 // Video 视频实体类
 // 普通索引 AuthorId
 type Video struct {
-	gorm.Model
-
-	Title    string
-	AuthorId uint `gorm:"index:idx_author_id"`
-	PlayUrl  string
-	CoverUrl string
+	ID        int64 `gorm:"primarykey"`
+	Title     string
+	AuthorId  int64 `gorm:"index:idx_author_id"`
+	PlayUrl   string
+	CoverUrl  string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
 // BeforeCreate Hook函数，设置视频默认信息
@@ -70,17 +75,19 @@ func (v *Video) BeforeCreate(*gorm.DB) error {
 // Favorite 点赞表
 // 唯一索引 UserId -> VideoId
 type Favorite struct {
-	gorm.Model
-
-	UserId  int64 `gorm:"uniqueIndex:idx_user_video"`
-	VideoId int64 `gorm:"uniqueIndex:idx_user_video"`
+	ID        int64 `gorm:"primarykey"`
+	UserId    int64 `gorm:"uniqueIndex:idx_user_video"`
+	VideoId   int64 `gorm:"uniqueIndex:idx_user_video"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
 // Comment 评论表关系表
 // 唯一索引 VideoId -> ID(commentID)
 type Comment struct {
 	VideoId   int64 `gorm:"uniqueIndex:idx_video_comment"`
-	ID        uint  `gorm:"uniqueIndex:idx_video_comment;primaryKey"`
+	ID        int64 `gorm:"uniqueIndex:idx_video_comment;primaryKey"`
 	UserId    int64
 	Content   string
 	CreatedAt time.Time
@@ -92,10 +99,12 @@ type Comment struct {
 // 唯一索引 FollowerId -> FollowId
 // 普通索引 FollowId
 type Follow struct {
-	gorm.Model
-
+	ID         int64 `gorm:"primarykey"`
 	FollowerId int64 `gorm:"uniqueIndex:idx_follower_follow"`
 	FollowId   int64 `gorm:"uniqueIndex:idx_follower_follow;index:idx_follow"`
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	DeletedAt  gorm.DeletedAt `gorm:"index"`
 }
 
 //// Friend 好友关系表
@@ -109,9 +118,11 @@ type Follow struct {
 // Message 用户消息表
 // FromUserId -> ToUserId
 type Message struct {
-	gorm.Model
-
+	ID         int64 `gorm:"primarykey"`
 	FromUserId int64 `gorm:"uniqueIndex:idx_from_to"`
 	ToUserId   int64 `gorm:"uniqueIndex:idx_from_to"`
 	Content    string
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	DeletedAt  gorm.DeletedAt `gorm:"index"`
 }
