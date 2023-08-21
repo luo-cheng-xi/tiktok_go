@@ -36,13 +36,15 @@ func (v *VideoController) Publish(c *gin.Context) {
 	if err != nil {
 		model.AbortWithStatusErrJSON(c, err)
 	}
+	title := c.PostForm("title")
+
 	file, err := c.FormFile("data")
 	if err != nil {
 		model.AbortWithStatusErrJSON(c, err)
 	}
 
 	//调用service层代码
-	err = v.videoService.Publish(file, authorId)
+	err = v.videoService.Publish(file, authorId, title)
 	if err != nil {
 		model.AbortWithStatusErrJSON(c, err)
 	}

@@ -23,7 +23,7 @@ func NewVideoService(zl *zap.Logger, ou *util.OssUtil, dv *data.VideoDao) *Video
 	}
 }
 
-func (s VideoService) Publish(file *multipart.FileHeader, authorId uint) error {
+func (s VideoService) Publish(file *multipart.FileHeader, authorId uint, title string) error {
 	//使用对象存储工具类进行文件上传
 	url, err := s.ossUtil.OSSUpload(file)
 	if err != nil {
@@ -33,6 +33,7 @@ func (s VideoService) Publish(file *multipart.FileHeader, authorId uint) error {
 
 	//没有出现错误，进行数据的储存。
 	videoInfo := model.Video{
+		Title:    title,
 		AuthorId: authorId,
 		PlayUrl:  url,
 	}

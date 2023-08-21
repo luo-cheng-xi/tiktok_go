@@ -52,7 +52,7 @@ func (v *Video) BeforeCreate(*gorm.DB) error {
 		v.Title = defaultConf.VideoTitle
 	}
 	if v.CoverUrl == "" {
-		v.Title = defaultConf.VideoCover
+		v.CoverUrl = defaultConf.VideoCover
 	}
 	return nil
 }

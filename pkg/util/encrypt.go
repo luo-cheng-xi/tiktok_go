@@ -33,11 +33,12 @@ func EncryptPassword(password string) (string, error) {
 		keyLength:   32,
 	}
 
-	// 生成随机salt
+	//生成随机salt
 	//salt, err := RandomBytes(p.saltLength)
 	//if err != nil {
 	//	return "", err
 	//}
+	//生成随机salt
 	salt := make([]byte, p.saltLength)
 	_, err := rand.Read(salt)
 	if err != nil {
