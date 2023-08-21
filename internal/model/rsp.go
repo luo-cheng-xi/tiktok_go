@@ -13,20 +13,29 @@ type BaseRsp struct {
 
 type IdAndTokenRsp struct {
 	BaseRsp
+
 	Id    uint   `json:"user_id"`
 	Token string `json:"token"`
 }
 
 type UserRsp struct {
 	BaseRsp
+
 	User UserVO
+}
+
+type FeedRsp struct {
+	BaseRsp
+
+	NextTime  int64     `json:"next_time"`
+	VideoList []VideoVO `json:"video_list"`
 }
 
 // Option 用于支持Error函数的options模式
 type Option func(msg *BaseRsp)
 
 // AbortWithStatusErrJSON 自定义的用于告知前端错误信息的方法
-// 传入*gin.Context和error对象，对于自定义类型的错误，会根据错
+// 传入*gin.Context和error对象，对于自定义类型的错误，会根据
 // terrs包中定义的映射推断其http响应码，对于其他非自定义类型的错
 // 错误，则统一按照服务器内部异常处理,返回500响应码
 func AbortWithStatusErrJSON(c *gin.Context, e error) {

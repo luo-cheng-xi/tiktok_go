@@ -30,7 +30,7 @@ func GetDatabase() *Database {
 	password := cfg.Section("database").Key("password").String()
 	host := cfg.Section("database").Key("host").String()
 	schema := cfg.Section("database").Key("schema").String()
-	dsn := userName + ":" + password + "@tcp(" + host + ")/" + schema + "?charset=utf8mb4&parseTime=True"
+	dsn := userName + ":" + password + "@tcp(" + host + ")/" + schema + "?charset=utf8mb4&parseTime=True&loc=Local"
 	return &Database{
 		UserName: userName,
 		Password: password,

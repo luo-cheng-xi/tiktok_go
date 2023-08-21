@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var defaultConf = conf.GetDefaultConf()
+var defaultConf = conf.GetTiktokConf()
 
 // User 用户实体类
 // 唯一联合索引 Username -> Password
@@ -27,10 +27,10 @@ func (u *User) Reg() {
 // BeforeCreate Hook函数，用户设置用户的默认信息
 func (u *User) BeforeCreate(*gorm.DB) error {
 	if u.Avatar == "" {
-		u.Avatar = defaultConf.UserAvatar
+		u.Avatar = defaultConf.DefaultUserAvatar
 	}
 	if u.BackgroundImage == "" {
-		u.BackgroundImage = defaultConf.BackGroundImage
+		u.BackgroundImage = defaultConf.DefaultBackGroundImage
 	}
 	return nil
 }
@@ -49,10 +49,10 @@ type Video struct {
 // BeforeCreate Hook函数，设置视频默认信息
 func (v *Video) BeforeCreate(*gorm.DB) error {
 	if v.Title == "" {
-		v.Title = defaultConf.VideoTitle
+		v.Title = defaultConf.DefaultVideoTitle
 	}
 	if v.CoverUrl == "" {
-		v.CoverUrl = defaultConf.VideoCover
+		v.CoverUrl = defaultConf.DefaultVideoCover
 	}
 	return nil
 }

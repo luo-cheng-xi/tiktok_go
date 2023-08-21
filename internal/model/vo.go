@@ -36,6 +36,20 @@ type VideoVO struct {
 	Title         string `json:"title"`
 }
 
+// ParseVideoVO 待补全
+func ParseVideoVO(video Video) VideoVO {
+	return VideoVO{
+		ID: video.ID,
+		//Author:
+		PlayUrl:  video.PlayUrl,
+		CoverUrl: video.CoverUrl,
+		//FavoriteCount:
+		//CommentCount
+		//IsFavorite:
+		Title: video.Title,
+	}
+}
+
 type MessageVO struct {
 	ID         uint   `json:"id"`
 	ToUserId   int64  `json:"to_user_id"`
