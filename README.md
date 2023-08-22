@@ -44,10 +44,10 @@ backgroundImage = https://web-lcx-test.oss-cn-beijing.aliyuncs.com/ffb34b76-a294
 feedSize = 30
 
 [oss]
-endPoint = https://oss-cn-beijing.aliyuncs.com
-accessKeyId = LTAI5tJUpGYTue8tYs5fj9Y8
-accessKeySecret = noDdoFNWQmsUo5vKiU2Ph5uahWYiAz
-bucketName = lcx-tiktok
+endPoint = 
+accessKeyId =
+accessKeySecret = 
+bucketName = 
 
 
 ```
