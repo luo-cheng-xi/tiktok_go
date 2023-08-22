@@ -1,5 +1,5 @@
 package data
 
-func GetFollowCount(followerId int64) {
+func GetFollowCount(followerId uint64) {
 
 }

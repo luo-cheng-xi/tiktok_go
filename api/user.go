@@ -26,7 +26,7 @@ func NewUserController(l *zap.Logger, us *service.UserService) *UserController {
 func (rx *UserController) GetUserById(c *gin.Context) {
 	//解析参数
 	userIdStr := c.Query("user_id")
-	userId, err := strconv.ParseInt(userIdStr, 10, 64)
+	userId, err := strconv.ParseUint(userIdStr, 10, 64)
 	if err != nil {
 		rx.logger.Error("strconv.ParseUint error : ", zap.String("detail", err.Error()))
 		model.AbortWithStatusErrJSON(c, err)

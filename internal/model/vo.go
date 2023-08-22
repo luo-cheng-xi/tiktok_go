@@ -1,17 +1,17 @@
 package model
 
 type UserVO struct {
-	ID              int64  `json:"id"`
+	ID              uint64 `json:"id"`
 	Name            string `json:"name"`
-	FollowCount     int64  `json:"follow_count"`
-	FollowerCount   int64  `json:"follower_count"`
+	FollowCount     uint64 `json:"follow_count"`
+	FollowerCount   uint64 `json:"follower_count"`
 	IsFollow        bool   `json:"is_follow"`
 	Avatar          string `json:"avatar"`
 	BackgroundImage string `json:"background_image"`
 	Signature       string `json:"signature"`
-	TotalFavorited  int64  `json:"total_favorited"`
-	WorkCount       int64  `json:"work_count"`
-	FavoriteCount   int64  `json:"favorite_count"`
+	TotalFavorited  uint64 `json:"total_favorited"`
+	WorkCount       uint64 `json:"work_count"`
+	FavoriteCount   uint64 `json:"favorite_count"`
 }
 
 // ParseUserVO 待补全
@@ -26,12 +26,12 @@ func ParseUserVO(user User) UserVO {
 }
 
 type VideoVO struct {
-	ID            int64  `json:"id"`
+	ID            uint64 `json:"id"`
 	Author        UserVO `json:"author"`
 	PlayUrl       string `json:"play_url"`
 	CoverUrl      string `json:"cover_url"`
-	FavoriteCount int64  `json:"favorite_count"`
-	CommentCount  int64  `json:"comment_count"`
+	FavoriteCount uint64 `json:"favorite_count"`
+	CommentCount  uint64 `json:"comment_count"`
 	IsFavorite    bool   `json:"is_favorite"`
 	Title         string `json:"title"`
 }
@@ -51,9 +51,9 @@ func ParseVideoVO(video Video) VideoVO {
 }
 
 type MessageVO struct {
-	ID         int64  `json:"id"`
-	ToUserId   int64  `json:"to_user_id"`
-	FromUserId int64  `json:"from_user_id"`
+	ID         uint64 `json:"id"`
+	ToUserId   uint64 `json:"to_user_id"`
+	FromUserId uint64 `json:"from_user_id"`
 	Content    string `json:"content"`
 	CreateTime string `json:"create_time"`
 }

@@ -12,7 +12,7 @@ import (
 	"tiktok/pkg/logging"
 )
 
-var ProviderSet = wire.NewSet(NewData, NewUserDao, NewVideoDao)
+var ProviderSet = wire.NewSet(NewData, NewUserDao, NewVideoDao, NewFavoriteDao)
 
 type Data struct {
 	DB *gorm.DB

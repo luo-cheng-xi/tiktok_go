@@ -28,7 +28,7 @@ func NewUserService(
 // Register 用户注册功能
 //
 // error : ErrUsernameRegistered
-func (u *UserService) Register(username, password string) (int64, string, error) {
+func (u *UserService) Register(username, password string) (uint64, string, error) {
 	_, err := u.userDao.GetUserByUsername(username)
 	//err == nil时，说明通过用户名找到了该用户，返回
 	if err == nil {
@@ -55,7 +55,7 @@ func (u *UserService) Register(username, password string) (int64, string, error)
 // Login 用户登录功能
 //
 // error: ErrPasswordWrong | ErrUserNotFound
-func (u *UserService) Login(username, password string) (int64, string, error) {
+func (u *UserService) Login(username, password string) (uint64, string, error) {
 	//查找是否存在该用户名的用户
 	user, err := u.userDao.GetUserByUsername(username)
 	if err != nil {
@@ -77,7 +77,7 @@ func (u *UserService) Login(username, password string) (int64, string, error) {
 // GetUserById 通过Id获得用户信息
 //
 // error : ErrUserNotFound
-func (u *UserService) GetUserById(id int64) (model.User, error) {
+func (u *UserService) GetUserById(id uint64) (model.User, error) {
 	//调用dao层获取用户信息
 	user, err := u.userDao.GetUserById(id)
 	if err != nil {
@@ -87,6 +87,6 @@ func (u *UserService) GetUserById(id int64) (model.User, error) {
 }
 
 // GetFollowCount 通过用户Id获得用户关注人数
-func GetFollowCount(userId int64) {
+func GetFollowCount(userId uint64) {
 	data.GetFollowCount(userId)
 }

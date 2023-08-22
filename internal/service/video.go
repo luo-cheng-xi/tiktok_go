@@ -12,22 +12,24 @@ import (
 )
 
 type VideoService struct {
-	logger     *zap.Logger
-	ossUtil    *util.OssUtil
-	videoDao   *data.VideoDao
-	tiktokConf *conf.TiktokConfig
+	logger      *zap.Logger
+	ossUtil     *util.OssUtil
+	videoDao    *data.VideoDao
+	favoriteDao *data.FavoriteDao
+	tiktokConf  *conf.TiktokConfig
 }
 
-func NewVideoService(zl *zap.Logger, ou *util.OssUtil, dv *data.VideoDao, tc *conf.TiktokConfig) *VideoService {
+func NewVideoService(zl *zap.Logger, ou *util.OssUtil, vd *data.VideoDao, tc *conf.TiktokConfig, fd *data.FavoriteDao) *VideoService {
 	return &VideoService{
-		logger:     zl,
-		ossUtil:    ou,
-		videoDao:   dv,
-		tiktokConf: tc,
+		logger:      zl,
+		ossUtil:     ou,
+		videoDao:    vd,
+		favoriteDao: fd,
+		tiktokConf:  tc,
 	}
 }
 
-func (s VideoService) Publish(file *multipart.FileHeader, authorId int64, title string) error {
+func (s VideoService) Publish(file *multipart.FileHeader, authorId uint64, title string) error {
 	//使用对象存储工具类进行文件上传
 	url, err := s.ossUtil.OSSUpload(file)
 	if err != nil {
@@ -65,7 +67,7 @@ func (s VideoService) Feed(latestTime time.Time) ([]model.VideoVO, time.Time) {
 }
 
 // ListVideoByAuthorId 列出指定作者的所有作品
-func (s VideoService) ListVideoByAuthorId(authorId int64) []model.VideoVO {
+func (s VideoService) ListVideoByAuthorId(authorId uint64) []model.VideoVO {
 	//调用dao层代码查询视频信息
 	videos := s.videoDao.ListVideoByAuthorId(authorId)
 
@@ -79,11 +81,26 @@ func (s VideoService) ListVideoByAuthorId(authorId int64) []model.VideoVO {
 }
 
 // FavoriteAction 登录用户对于视频的点赞和取消点赞操作
-func (s VideoService) FavoriteAction(userId int64, videoId int64, actionType int32) {
+func (s VideoService) FavoriteAction(userId uint64, videoId uint64, actionType uint32) {
 	if actionType == 1 {
-		s.videoDao.Favorite(userId, videoId)
+		s.favoriteDao.Favorite(userId, videoId)
 	} else if actionType == 2 {
-		s.videoDao.CancelFavorite(userId, videoId)
+		s.favoriteDao.CancelFavorite(userId, videoId)
+	}
+}
+
+// ListFavoriteVideoByUserId 根据用户id列出所有该用户喜欢的视频
+func (s VideoService) ListFavoriteVideoByUserId(curUserId uint64, tarUserId uint64) []model.VideoVO {
+	//调用dao层代码，查询目标用户相关的所有favorite关系
+	favorites := s.favoriteDao.ListFavoriteByUserId(tarUserId)
+
+	//将视频信息都转化为videoVO
+	var videoVOs = make([]model.VideoVO, len(favorites))
+	for i, fav := range favorites {
+		video := s.videoDao.GetVideoById(fav.VideoId)
+		videoVOs[i] = model.ParseVideoVO(video)
 	}
 
+	//返回结果
+	return videoVOs
 }

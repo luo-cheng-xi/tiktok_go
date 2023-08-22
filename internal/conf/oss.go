@@ -12,7 +12,7 @@ type OssConfig struct {
 }
 
 func GetOSSConf() *OssConfig {
-	cfg, err := ini.Load("D:\\Code\\Project\\GoProject\\tiktok\\configs\\conf.ini")
+	cfg, err := ini.Load("./configs/conf.ini")
 	if err != nil {
 		panic("oss_conf ini文件读取异常")
 	}

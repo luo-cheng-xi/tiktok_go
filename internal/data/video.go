@@ -20,7 +20,7 @@ func NewVideoDao(l *zap.Logger, d *Data) *VideoDao {
 }
 
 // CreateVideo 保存视频信息,返回视频id
-func (v VideoDao) CreateVideo(video model.Video) int64 {
+func (v VideoDao) CreateVideo(video model.Video) uint64 {
 	//操作Video表，保存video对象
 	v.db.Create(&video)
 	return video.ID
@@ -34,22 +34,15 @@ func (v VideoDao) ListVideoOrderByUpdateTime(limit int, latestTime time.Time) []
 }
 
 // ListVideoByAuthorId 列出指定作者Id的所有视频
-func (v VideoDao) ListVideoByAuthorId(authorId int64) []model.Video {
+func (v VideoDao) ListVideoByAuthorId(authorId uint64) []model.Video {
 	var videos []model.Video
 	v.db.Where("author_id = ?", authorId).Find(&videos)
 	return videos
 }
 
-// Favorite 在数据库Favorite表中添加点赞关系
-func (v VideoDao) Favorite(userid int64, videoId int64) {
-	favorite := model.Favorite{
-		UserId:  userid,
-		VideoId: videoId,
-	}
-	v.db.Create(favorite)
-}
-
-// CancelFavorite 在Favorite表中移除点赞关系
-func (v VideoDao) CancelFavorite(userId int64, videoId int64) {
-	v.db.Where("where user_id = ? and video_id = ?", userId, videoId).Delete(&model.Favorite{})
+// GetVideoById 通过视频id查找视频信息
+func (v VideoDao) GetVideoById(videoId uint64) model.Video {
+	video := model.Video{}
+	v.db.Where("video_id = ?", videoId).Find(&video)
+	return video
 }

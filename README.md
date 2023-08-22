@@ -28,26 +28,26 @@ dao,service层的非预定义异常都要以ErrInternal形式抛出
 
 ```ini
 [database]
-username = mysql用户名
-password = mysql密码
-#改成自己的ip和端口
-host = 192.168.157.129:3306 
-schema = 数据库表名
+username = 
+password = 
+host = # 192.168.157.129:3306
+schema = # tiktok_go
 
 [jwt]
 signedKey = tik-jwt-tok
 
-[default]
+[tiktok]
 userAvatar = https://web-lcx-test.oss-cn-beijing.aliyuncs.com/5657526a-4e91-4b36-9633-fe3f30f2e281.jpg
 videoTitle = untitled
 videoCover = https://web-lcx-test.oss-cn-beijing.aliyuncs.com/ffb34b76-a294-4135-80a3-ad189cc61432.jpg
 backgroundImage = https://web-lcx-test.oss-cn-beijing.aliyuncs.com/ffb34b76-a294-4135-80a3-ad189cc61432.jpg
+feedSize = 30
 
+[oss]
+endPoint = https://oss-cn-beijing.aliyuncs.com
+accessKeyId = LTAI5tJUpGYTue8tYs5fj9Y8
+accessKeySecret = noDdoFNWQmsUo5vKiU2Ph5uahWYiAz
+bucketName = lcx-tiktok
 
-[oss] # 阿里oss配置
-endPoint = 
-accessKeyId = 
-accessKeySecret = 
-bucketName = 
 
 ```

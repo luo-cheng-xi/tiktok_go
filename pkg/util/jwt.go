@@ -17,12 +17,12 @@ func GetJwtUtil(jc *conf.JwtConfig) *JwtUtil {
 }
 
 type Payload struct {
-	ID int64
+	ID uint64
 	jwt.RegisteredClaims
 }
 
 // GetJwt 通过用户id参数得到JWT令牌
-func (rx *JwtUtil) GetJwt(id int64) string {
+func (rx *JwtUtil) GetJwt(id uint64) string {
 	claims := Payload{
 		id,
 		jwt.RegisteredClaims{
@@ -57,7 +57,7 @@ func (rx *JwtUtil) ParseJwt(tokenString string) (*Payload, error) {
 }
 
 // GetUserIdFromJwt 从Jwt令牌中获取用户ID信息
-func (rx *JwtUtil) GetUserIdFromJwt(tokenString string) (int64, error) {
+func (rx *JwtUtil) GetUserIdFromJwt(tokenString string) (uint64, error) {
 	load, err := rx.ParseJwt(tokenString)
 	if err != nil {
 		return 0, err

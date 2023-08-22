@@ -14,7 +14,7 @@ type BaseRsp struct {
 type IdAndTokenRsp struct {
 	BaseRsp
 
-	Id    int64  `json:"user_id"`
+	Id    uint64 `json:"user_id"`
 	Token string `json:"token"`
 }
 
@@ -27,7 +27,7 @@ type UserRsp struct {
 type FeedRsp struct {
 	BaseRsp
 
-	NextTime  int64     `json:"next_time"`
+	NextTime  uint64    `json:"next_time"`
 	VideoList []VideoVO `json:"video_list"`
 }
 

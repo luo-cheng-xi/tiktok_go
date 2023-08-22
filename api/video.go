@@ -70,9 +70,11 @@ func (v VideoController) Feed(c *gin.Context) {
 	zone := time.FixedZone("CST", 8*3600) //设置为东8区
 	latestTime := time.UnixMilli(latestTimeStamp).In(zone)
 	videoVOs, nextTime := v.videoService.Feed(latestTime)
+
+	//返回信息
 	c.JSON(http.StatusOK, model.FeedRsp{
 		BaseRsp:   model.NewSuccessRsp(),
-		NextTime:  nextTime.UnixMilli(),
+		NextTime:  uint64(nextTime.UnixMilli()),
 		VideoList: videoVOs,
 	})
 }
@@ -82,7 +84,7 @@ func (v VideoController) ListVideoByAuthorId(c *gin.Context) {
 	//解析参数
 	//tokenString := c.Query("token")
 	//userId, err := v.jwtUtil.GetUserIdFromJwt(tokenString)
-	authorId, err := strconv.ParseInt(c.Query("user_id"), 10, 64)
+	authorId, err := strconv.ParseUint(c.Query("user_id"), 10, 64)
 	if err != nil {
 		v.logger.Debug("作者id解析出错", zap.String("cause", err.Error()))
 		model.AbortWithStatusErrJSON(c, err)
@@ -91,27 +93,30 @@ func (v VideoController) ListVideoByAuthorId(c *gin.Context) {
 
 	//调用service层代码
 	videoVOs := v.videoService.ListVideoByAuthorId(authorId)
+
+	//返回信息
 	c.JSON(http.StatusOK, model.VideoListRsp{
 		BaseRsp:   model.NewSuccessRsp(),
 		VideoList: videoVOs,
 	})
 }
 
+// FavoriteAction 点赞相关操作
 func (v VideoController) FavoriteAction(c *gin.Context) {
 	//解析参数
-	userId, err := strconv.ParseInt(c.Query("token"), 10, 64)
+	userId, err := strconv.ParseUint(c.Query("token"), 10, 64)
 	if err != nil {
 		v.logger.Debug("无法从token中解析出用户id", zap.String("cause", err.Error()))
 		model.AbortWithStatusErrJSON(c, err)
 		return
 	}
-	videoId, err := strconv.ParseInt(c.Query("video_id"), 10, 64)
+	videoId, err := strconv.ParseUint(c.Query("video_id"), 10, 64)
 	if err != nil {
 		v.logger.Debug("视频id解析出错", zap.String("cause", err.Error()))
 		model.AbortWithStatusErrJSON(c, err)
 		return
 	}
-	actionType, err := strconv.ParseInt(c.Query("action_type"), 10, 32)
+	actionType, err := strconv.ParseUint(c.Query("action_type"), 10, 32)
 	if err != nil {
 		v.logger.Debug("actionType解析出错", zap.String("cause", err.Error()))
 		model.AbortWithStatusErrJSON(c, err)
@@ -119,6 +124,26 @@ func (v VideoController) FavoriteAction(c *gin.Context) {
 	}
 
 	//调用service层代码
-	v.videoService.FavoriteAction(userId, videoId, int32(actionType))
+	v.videoService.FavoriteAction(userId, videoId, uint32(actionType))
 
+	//成功，返回信息
+	c.JSON(http.StatusOK, model.NewSuccessRsp())
+}
+
+// ListFavoriteByUserId 列出用户所有的点赞视频
+func (v VideoController) ListFavoriteByUserId(c *gin.Context) {
+	// 解析参数
+	curUserId, err := v.jwtUtil.GetUserIdFromJwt(c.Query("token"))
+	if err != nil {
+		v.logger.Debug("无法从token中解析用户id", zap.String("cause", err.Error()))
+		model.AbortWithStatusErrJSON(c, err)
+		return
+	}
+	tarUserId, err := strconv.ParseUint(c.Query("user_id"), 10, 64)
+	if err != nil {
+		v.logger.Debug("目标用户id Query参数解析出错", zap.String("cause", err.Error()))
+		model.AbortWithStatusErrJSON(c, err)
+		return
+	}
+	v.videoService.ListFavoriteVideoByUserId(curUserId, tarUserId)
 }
