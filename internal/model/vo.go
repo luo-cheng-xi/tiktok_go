@@ -14,17 +14,6 @@ type UserVO struct {
 	FavoriteCount   uint64 `json:"favorite_count"`
 }
 
-// ParseUserVO 待补全
-func ParseUserVO(user User) UserVO {
-	return UserVO{
-		ID:              user.ID,
-		Name:            user.Username,
-		Avatar:          user.Avatar,
-		BackgroundImage: user.BackgroundImage,
-		Signature:       user.Signature,
-	}
-}
-
 type VideoVO struct {
 	ID            uint64 `json:"id"`
 	Author        UserVO `json:"author"`
@@ -34,20 +23,6 @@ type VideoVO struct {
 	CommentCount  uint64 `json:"comment_count"`
 	IsFavorite    bool   `json:"is_favorite"`
 	Title         string `json:"title"`
-}
-
-// ParseVideoVO 待补全
-func ParseVideoVO(video Video) VideoVO {
-	return VideoVO{
-		ID: video.ID,
-		//Author:
-		PlayUrl:  video.PlayUrl,
-		CoverUrl: video.CoverUrl,
-		//FavoriteCount:
-		//CommentCount
-		//IsFavorite:
-		Title: video.Title,
-	}
 }
 
 type MessageVO struct {

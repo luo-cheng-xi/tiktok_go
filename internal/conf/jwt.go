@@ -10,7 +10,7 @@ type JwtConfig struct {
 
 // GetJwtConf 获取Jwt配置
 func GetJwtConf() *JwtConfig {
-	cfg, err := ini.Load("./configs/conf.ini")
+	cfg, err := ini.Load(getIniPath())
 	if err != nil {
 		panic("jwt_conf ini文件读取异常")
 	}

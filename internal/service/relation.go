@@ -6,7 +6,7 @@ type RelationService struct {
 	logger *zap.Logger
 }
 
-func NewRelationController(zl *zap.Logger) *RelationService {
+func NewRelationService(zl *zap.Logger) *RelationService {
 	return &RelationService{
 		logger: zl,
 	}

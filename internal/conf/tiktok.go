@@ -19,7 +19,7 @@ type TiktokConfig struct {
 }
 
 func GetTiktokConf() *TiktokConfig {
-	cfg, err := ini.Load("./configs/conf.ini")
+	cfg, err := ini.Load(getIniPath())
 	if err != nil {
 		panic("ini文件读取异常")
 	}

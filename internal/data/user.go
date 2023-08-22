@@ -23,7 +23,7 @@ func NewUserDao(l *zap.Logger, d *Data) *UserDao {
 // GetUserByUsername 通过用户名获取用户信息
 //
 // error : ErrorUserNotFound
-func (rx *UserDao) GetUserByUsername(username string) (model.User, error) {
+func (rx UserDao) GetUserByUsername(username string) (model.User, error) {
 	//查找用户名条件相符的用户
 	user := model.User{}
 	err := rx.db.Where("username = ?", username).Take(&user).Error
@@ -42,7 +42,7 @@ func (rx *UserDao) GetUserByUsername(username string) (model.User, error) {
 // GetUserById 通过用户Id获取用户信息
 //
 // error : ErrUserNotFound
-func (rx *UserDao) GetUserById(id uint64) (model.User, error) {
+func (rx UserDao) GetUserById(id uint64) (model.User, error) {
 	//查找id条件相符的用户
 	user := model.User{}
 	err := rx.db.Where("id = ?", id).Take(&user).Error
@@ -61,7 +61,7 @@ func (rx *UserDao) GetUserById(id uint64) (model.User, error) {
 }
 
 // CreateUser 创建用户，并返回主键id
-func (rx *UserDao) CreateUser(user model.User) uint64 {
+func (rx UserDao) CreateUser(user model.User) uint64 {
 	rx.db.Create(&user)
 	return user.ID
 }

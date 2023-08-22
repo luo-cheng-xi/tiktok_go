@@ -59,7 +59,7 @@ func (s VideoService) Feed(latestTime time.Time) ([]model.VideoVO, time.Time) {
 	//将实体类video,转化为前端所需数据videoVO。
 	var videoVOs = make([]model.VideoVO, len(videos)) // 提前指定切片大小，避免动态扩容
 	for i, video := range videos {
-		videoVOs[i] = model.ParseVideoVO(video)
+		videoVOs[i] = s.ParseVideoVO(video)
 	}
 
 	//返回结果
@@ -74,7 +74,7 @@ func (s VideoService) ListVideoByAuthorId(authorId uint64) []model.VideoVO {
 	//将实体类转化为前端所需数据videoVO
 	var videoVOs = make([]model.VideoVO, len(videos))
 	for i, video := range videos {
-		videoVOs[i] = model.ParseVideoVO(video)
+		videoVOs[i] = s.ParseVideoVO(video)
 	}
 	//返回结果
 	return videoVOs
@@ -98,9 +98,23 @@ func (s VideoService) ListFavoriteVideoByUserId(curUserId uint64, tarUserId uint
 	var videoVOs = make([]model.VideoVO, len(favorites))
 	for i, fav := range favorites {
 		video := s.videoDao.GetVideoById(fav.VideoId)
-		videoVOs[i] = model.ParseVideoVO(video)
+		videoVOs[i] = s.ParseVideoVO(video)
 	}
 
 	//返回结果
 	return videoVOs
+}
+
+// ParseVideoVO 待补全
+func (s VideoService) ParseVideoVO(video model.Video) model.VideoVO {
+	return model.VideoVO{
+		ID: video.ID,
+		//Author:
+		PlayUrl:  video.PlayUrl,
+		CoverUrl: video.CoverUrl,
+		//FavoriteCount:
+		//CommentCount
+		//IsFavorite:
+		Title: video.Title,
+	}
 }

@@ -8,16 +8,19 @@ import (
 	"tiktok/internal/model"
 	"tiktok/internal/service"
 	"tiktok/internal/terrs"
+	"tiktok/pkg/util"
 )
 
 type UserController struct {
 	logger      *zap.Logger
+	jwtUtil     *util.JwtUtil
 	userService *service.UserService
 }
 
-func NewUserController(l *zap.Logger, us *service.UserService) *UserController {
+func NewUserController(l *zap.Logger, us *service.UserService, ju *util.JwtUtil) *UserController {
 	return &UserController{
 		logger:      l,
+		jwtUtil:     ju,
 		userService: us,
 	}
 }
@@ -25,10 +28,13 @@ func NewUserController(l *zap.Logger, us *service.UserService) *UserController {
 // GetUserById 用户信息获取功能
 func (rx *UserController) GetUserById(c *gin.Context) {
 	//解析参数
-	userIdStr := c.Query("user_id")
-	userId, err := strconv.ParseUint(userIdStr, 10, 64)
+	curUserId, err := rx.jwtUtil.GetUserIdFromJwt(c.Query("token"))
 	if err != nil {
-		rx.logger.Error("strconv.ParseUint error : ", zap.String("detail", err.Error()))
+		rx.logger.Debug("GetUserIdFromJwt error : ", zap.String("cause", err.Error()))
+	}
+	userId, err := strconv.ParseUint(c.Query("user_id"), 10, 64)
+	if err != nil {
+		rx.logger.Error("strconv.ParseUint error : ", zap.String("cause", err.Error()))
 		model.AbortWithStatusErrJSON(c, err)
 		return
 	}
@@ -41,9 +47,14 @@ func (rx *UserController) GetUserById(c *gin.Context) {
 	}
 
 	//封装返回值,并返回结果
+	userVO, err := rx.userService.ParseUserVO(userInfo, curUserId)
+	if err != nil {
+		model.AbortWithStatusErrJSON(c, err)
+		return
+	}
 	c.JSON(http.StatusOK, model.UserRsp{
 		BaseRsp: model.NewSuccessRsp(),
-		User:    model.ParseUserVO(userInfo),
+		User:    userVO,
 	})
 }
 

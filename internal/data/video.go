@@ -46,3 +46,10 @@ func (v VideoDao) GetVideoById(videoId uint64) model.Video {
 	v.db.Where("video_id = ?", videoId).Find(&video)
 	return video
 }
+
+// CountVideoByAuthorId 通过作者的id计算视频数量
+func (v VideoDao) CountVideoByAuthorId(authorId uint64) uint64 {
+	ret := int64(0)
+	v.db.Model(model.Video{}).Where("author_id = ?", authorId).Count(&ret)
+	return uint64(ret)
+}

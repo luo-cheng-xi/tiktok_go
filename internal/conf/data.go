@@ -22,9 +22,9 @@ func GetRedis() *Redis {
 	return &Redis{}
 }
 func GetDatabase() *Database {
-	cfg, err := ini.Load("./configs/conf.ini")
+	cfg, err := ini.Load(getIniPath())
 	if err != nil {
-		panic("mysql_conf ini文件读取异常")
+		panic(err)
 	}
 	userName := cfg.Section("database").Key("username").String()
 	password := cfg.Section("database").Key("password").String()
