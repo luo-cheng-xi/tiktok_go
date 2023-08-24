@@ -43,6 +43,18 @@ type UserListRsp struct {
 	UserList []UserVO `json:"user_list"`
 }
 
+type CommentRsp struct {
+	BaseRsp
+
+	Comment CommentVO `json:"comment"`
+}
+
+type CommentListRsp struct {
+	BaseRsp
+
+	CommentList []CommentVO `json:"comment_list"`
+}
+
 // Option 用于支持Error函数的options模式
 type Option func(msg *BaseRsp)
 

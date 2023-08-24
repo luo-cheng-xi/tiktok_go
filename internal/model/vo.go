@@ -32,3 +32,10 @@ type MessageVO struct {
 	Content    string `json:"content"`
 	CreateTime string `json:"create_time"`
 }
+
+type CommentVO struct {
+	ID         uint64 `json:"id"`
+	User       UserVO `json:"user"`
+	Content    string `json:"content"`
+	CreateData string `json:"create_data"`
+}

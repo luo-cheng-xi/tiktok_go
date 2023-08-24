@@ -70,7 +70,7 @@ func (f FavoriteManager) IsFavorite(userId, videoId uint64) (bool, error) {
 
 // SaveFavorite 添加点赞关系
 func (f FavoriteManager) SaveFavorite(userId uint64, videoId uint64) {
-	f.favoriteDao.SaveFavorite(userId, videoId)
+	f.favoriteDao.SaveFavorite(model.Favorite{UserId: userId, VideoId: videoId})
 }
 
 // DeleteFavorite 取消点赞关系

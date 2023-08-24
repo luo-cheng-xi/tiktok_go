@@ -20,11 +20,7 @@ func NewFavoriteDao(l *zap.Logger, data *Data) *FavoriteDao {
 }
 
 // SaveFavorite 在数据库Favorite表中添加点赞关系
-func (f FavoriteDao) SaveFavorite(userid uint64, videoId uint64) {
-	favorite := model.Favorite{
-		UserId:  userid,
-		VideoId: videoId,
-	}
+func (f FavoriteDao) SaveFavorite(favorite model.Favorite) {
 	//对于表中存在被逻辑删除字段的情况，更新deleted_at为null
 	var ret model.Favorite
 	if err := f.db.Unscoped().Where(favorite).Take(&ret).Error; err == nil {

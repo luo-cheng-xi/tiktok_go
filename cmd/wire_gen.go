@@ -37,7 +37,9 @@ func BuildInjector() (*Injector, error) {
 	userService := service.NewUserService(logger, userDao, favoriteDao, videoManager, userManager, favoriteManager, jwtUtil)
 	followDao := data.NewRelationDao(logger, dataData)
 	relationManager := manager.NewRelationManager(logger, followDao, userDao)
-	voUtil := util.NewVoUtil(logger, userManager, videoManager, relationManager, favoriteManager)
+	commentDao := data.NewCommentDao(logger, dataData)
+	commentManager := manager.NewCommentManager(logger, commentDao)
+	voUtil := util.NewVoUtil(logger, userManager, videoManager, relationManager, favoriteManager, commentManager)
 	userController := api.NewUserController(logger, userService, jwtUtil, voUtil)
 	ossConfig := conf.GetOSSConf()
 	ossUtil := util.NewOssUtil(ossConfig)
@@ -46,9 +48,11 @@ func BuildInjector() (*Injector, error) {
 	videoController := api.NewVideoController(logger, ossUtil, jwtUtil, voUtil, videoService)
 	relationService := service.NewRelationService(logger, relationManager, followDao)
 	relationController := api.NewRelationController(logger, relationService, jwtUtil, voUtil)
+	commentService := service.NewCommentService(logger, commentManager)
+	commentController := api.NewCommentController(logger, voUtil, jwtUtil, commentService)
 	favoriteService := service.NewFavoriteService(logger, favoriteManager)
 	favoriteController := api.NewInteractionController(logger, jwtUtil, voUtil, favoriteService)
 	loginCheckMiddleware := middleware.NewLoginCheck(userService, jwtUtil)
-	injector := InitInjector(userController, videoController, relationController, favoriteController, loginCheckMiddleware)
+	injector := InitInjector(userController, videoController, relationController, commentController, favoriteController, loginCheckMiddleware)
 	return injector, nil
 }

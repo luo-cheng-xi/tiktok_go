@@ -12,6 +12,7 @@ type VoUtil struct {
 	videoManager    *manager.VideoManager
 	relationManager *manager.RelationManager
 	favoriteManager *manager.FavoriteManager
+	commentManager  *manager.CommentManager
 }
 
 func NewVoUtil(
@@ -19,13 +20,15 @@ func NewVoUtil(
 	um *manager.UserManager,
 	vm *manager.VideoManager,
 	rm *manager.RelationManager,
-	fm *manager.FavoriteManager) *VoUtil {
+	fm *manager.FavoriteManager,
+	cm *manager.CommentManager) *VoUtil {
 	return &VoUtil{
 		logger:          l,
 		userManager:     um,
 		videoManager:    vm,
 		relationManager: rm,
 		favoriteManager: fm,
+		commentManager:  cm,
 	}
 }
 
@@ -70,8 +73,26 @@ func (v VoUtil) ParseVideoVO(video model.Video, curUserId uint64) (model.VideoVO
 		PlayUrl:       video.PlayUrl,
 		CoverUrl:      video.CoverUrl,
 		FavoriteCount: v.favoriteManager.CountFavoritedByVideoId(video.ID),
-		//CommentCount
-		IsFavorite: isFavorite,
-		Title:      video.Title,
+		CommentCount:  v.commentManager.CountCommentByVideoId(video.ID),
+		IsFavorite:    isFavorite,
+		Title:         video.Title,
+	}, nil
+}
+
+// ParseCommentVO 将comment转化为commentVO
+func (v VoUtil) ParseCommentVO(comment model.Comment, curUserId uint64) (model.CommentVO, error) {
+	user, err := v.userManager.GetUserById(comment.UserId)
+	if err != nil {
+		return model.CommentVO{}, err
+	}
+	userVO, err := v.ParseUserVO(user, curUserId)
+	if err != nil {
+		return model.CommentVO{}, err
+	}
+	return model.CommentVO{
+		ID:         comment.ID,
+		User:       userVO,
+		Content:    comment.Content,
+		CreateData: comment.CreatedAt.Format("01-02"),
 	}, nil
 }

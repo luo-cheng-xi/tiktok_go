@@ -56,5 +56,11 @@ func InitRouter(r *gin.Engine) {
 
 		// 粉丝列表
 		apiRouter.GET("/relation/follower/list/", con.LoginCheckMiddleware.LoginCheck, con.relationController.ListFollower)
+
+		// 评论操作
+		apiRouter.POST("/comment/action/", con.LoginCheckMiddleware.LoginCheck, con.commentController.CommentAction)
+
+		// 评论列表
+		apiRouter.GET("/comment/list/", con.LoginCheckMiddleware.LoginCheck, con.commentController.ListCommentByVideoId)
 	}
 }
