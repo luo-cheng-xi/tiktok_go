@@ -9,6 +9,7 @@
     |-  cache       缓存接口
     |-  conf        用于加载配置信息的包，类似Spring Boot中的Properties
     |-  dao         dao层
+    |-  manager     manager层
     |-  middleware  中间件
     |-  model       实体类包 
     |-  service     service层
@@ -17,6 +18,18 @@
     |-  logging     日志相关
     |-  util        工具类
 ```
+
+api中目前设计了四个接口:
+1. interaction交互接口,用于处理用户对视频的行为
+2. relation社交接口,用于处理用户对用户的行为
+3. user用户接口，用户的基础信息相关功能
+4. video视频接口，视频相关的基础功能
+
+设计了四个层次
+1. api 用于http数据的解析，参数的校验，调用service层的代码，返回service代码执行结果
+2. service 用于处理业务逻辑，不允许service之间互相调用，可以调用manager和dao层的代码
+3. manager 用于提供简单的业务逻辑封装供service接口复用,如果需要使用事务功能也需要封装在manager层，调用dao层代码
+4. dao 用于直接和数据库交互
 
 如果需要运行请对`/configs/conf.ini`文件进行适当修改
 

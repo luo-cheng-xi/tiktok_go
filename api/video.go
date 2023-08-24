@@ -15,6 +15,7 @@ type VideoController struct {
 	logger       *zap.Logger
 	ossUtil      *util.OssUtil
 	jwtUtil      *util.JwtUtil
+	voUtil       *util.VoUtil
 	videoService *service.VideoService
 }
 
@@ -22,11 +23,13 @@ func NewVideoController(
 	zl *zap.Logger,
 	uo *util.OssUtil,
 	uj *util.JwtUtil,
+	vu *util.VoUtil,
 	vs *service.VideoService) *VideoController {
 	return &VideoController{
 		logger:       zl,
 		ossUtil:      uo,
 		jwtUtil:      uj,
+		voUtil:       vu,
 		videoService: vs,
 	}
 }
@@ -61,6 +64,12 @@ func (v VideoController) Publish(c *gin.Context) {
 // Feed 视频流功能接口
 func (v VideoController) Feed(c *gin.Context) {
 	//解析参数
+	curUserId, err := v.jwtUtil.GetUserIdFromJwt(c.Query("token"))
+	if err != nil {
+		v.logger.Debug("用户id信息解析失败", zap.String("cause", err.Error()))
+		model.AbortWithStatusErrJSON(c, err)
+		return
+	}
 	latestTimeStamp, err := strconv.ParseInt(c.Query("latest_time"), 10, 64)
 	if err != nil {
 		v.logger.Debug("字符串转时间错误 :", zap.String("cause", err.Error()))
@@ -69,7 +78,20 @@ func (v VideoController) Feed(c *gin.Context) {
 	}
 	zone := time.FixedZone("CST", 8*3600) //设置为东8区
 	latestTime := time.UnixMilli(latestTimeStamp).In(zone)
-	videoVOs, nextTime := v.videoService.Feed(latestTime)
+
+	//调用service层代码，获取视频信息
+	videos, nextTime := v.videoService.Feed(latestTime)
+
+	//封装视频信息
+	videoVOs := make([]model.VideoVO, len(videos))
+	for i, video := range videos {
+		videoVOs[i], err = v.voUtil.ParseVideoVO(video, curUserId)
+		if err != nil {
+			v.logger.Debug("视频信息转化出错", zap.String("cause", err.Error()))
+			model.AbortWithStatusErrJSON(c, err)
+			return
+		}
+	}
 
 	//返回信息
 	c.JSON(http.StatusOK, model.FeedRsp{
@@ -82,8 +104,8 @@ func (v VideoController) Feed(c *gin.Context) {
 // ListVideoByAuthorId 列出用户所有投稿过的视频
 func (v VideoController) ListVideoByAuthorId(c *gin.Context) {
 	//解析参数
-	//tokenString := c.Query("token")
-	//userId, err := v.jwtUtil.GetUserIdFromJwt(tokenString)
+	tokenString := c.Query("token")
+	userId, err := v.jwtUtil.GetUserIdFromJwt(tokenString)
 	authorId, err := strconv.ParseUint(c.Query("user_id"), 10, 64)
 	if err != nil {
 		v.logger.Debug("作者id解析出错", zap.String("cause", err.Error()))
@@ -92,58 +114,21 @@ func (v VideoController) ListVideoByAuthorId(c *gin.Context) {
 	}
 
 	//调用service层代码
-	videoVOs := v.videoService.ListVideoByAuthorId(authorId)
+	videos := v.videoService.ListVideoByAuthorId(authorId)
+
+	//封装信息为VO
+	videoVOs := make([]model.VideoVO, len(videos))
+	for i, video := range videos {
+		videoVOs[i], err = v.voUtil.ParseVideoVO(video, userId)
+		if err != nil {
+			model.AbortWithStatusErrJSON(c, err)
+			return
+		}
+	}
 
 	//返回信息
 	c.JSON(http.StatusOK, model.VideoListRsp{
 		BaseRsp:   model.NewSuccessRsp(),
 		VideoList: videoVOs,
 	})
-}
-
-// FavoriteAction 点赞相关操作
-func (v VideoController) FavoriteAction(c *gin.Context) {
-	//解析参数
-	userId, err := strconv.ParseUint(c.Query("token"), 10, 64)
-	if err != nil {
-		v.logger.Debug("无法从token中解析出用户id", zap.String("cause", err.Error()))
-		model.AbortWithStatusErrJSON(c, err)
-		return
-	}
-	videoId, err := strconv.ParseUint(c.Query("video_id"), 10, 64)
-	if err != nil {
-		v.logger.Debug("视频id解析出错", zap.String("cause", err.Error()))
-		model.AbortWithStatusErrJSON(c, err)
-		return
-	}
-	actionType, err := strconv.ParseUint(c.Query("action_type"), 10, 32)
-	if err != nil {
-		v.logger.Debug("actionType解析出错", zap.String("cause", err.Error()))
-		model.AbortWithStatusErrJSON(c, err)
-		return
-	}
-
-	//调用service层代码
-	v.videoService.FavoriteAction(userId, videoId, uint32(actionType))
-
-	//成功，返回信息
-	c.JSON(http.StatusOK, model.NewSuccessRsp())
-}
-
-// ListFavoriteByUserId 列出用户所有的点赞视频
-func (v VideoController) ListFavoriteByUserId(c *gin.Context) {
-	// 解析参数
-	curUserId, err := v.jwtUtil.GetUserIdFromJwt(c.Query("token"))
-	if err != nil {
-		v.logger.Debug("无法从token中解析用户id", zap.String("cause", err.Error()))
-		model.AbortWithStatusErrJSON(c, err)
-		return
-	}
-	tarUserId, err := strconv.ParseUint(c.Query("user_id"), 10, 64)
-	if err != nil {
-		v.logger.Debug("目标用户id Query参数解析出错", zap.String("cause", err.Error()))
-		model.AbortWithStatusErrJSON(c, err)
-		return
-	}
-	v.videoService.ListFavoriteVideoByUserId(curUserId, tarUserId)
 }

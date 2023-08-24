@@ -43,7 +43,7 @@ func (v VideoDao) ListVideoByAuthorId(authorId uint64) []model.Video {
 // GetVideoById 通过视频id查找视频信息
 func (v VideoDao) GetVideoById(videoId uint64) model.Video {
 	video := model.Video{}
-	v.db.Where("video_id = ?", videoId).Find(&video)
+	v.db.Where("id = ?", videoId).Take(&video)
 	return video
 }
 

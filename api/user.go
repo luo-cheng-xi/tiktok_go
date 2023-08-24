@@ -14,13 +14,19 @@ import (
 type UserController struct {
 	logger      *zap.Logger
 	jwtUtil     *util.JwtUtil
+	voUtil      *util.VoUtil
 	userService *service.UserService
 }
 
-func NewUserController(l *zap.Logger, us *service.UserService, ju *util.JwtUtil) *UserController {
+func NewUserController(
+	l *zap.Logger,
+	us *service.UserService,
+	ju *util.JwtUtil,
+	vu *util.VoUtil) *UserController {
 	return &UserController{
 		logger:      l,
 		jwtUtil:     ju,
+		voUtil:      vu,
 		userService: us,
 	}
 }
@@ -47,7 +53,7 @@ func (rx *UserController) GetUserById(c *gin.Context) {
 	}
 
 	//封装返回值,并返回结果
-	userVO, err := rx.userService.ParseUserVO(userInfo, curUserId)
+	userVO, err := rx.voUtil.ParseUserVO(userInfo, curUserId)
 	if err != nil {
 		model.AbortWithStatusErrJSON(c, err)
 		return

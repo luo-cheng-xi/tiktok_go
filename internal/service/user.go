@@ -10,31 +10,35 @@ import (
 )
 
 type UserService struct {
-	logger      *zap.Logger
+	logger *zap.Logger
+
 	userDao     *data.UserDao
-	videoDao    *data.VideoDao
 	favoriteDao *data.FavoriteDao
-	relationDao *data.RelationDao
-	manager     *manager.Manager
-	jwtUtil     *util.JwtUtil
+
+	videoManager    *manager.VideoManager
+	relationManager *manager.RelationManager
+	userManager     *manager.UserManager
+	manager         *manager.FavoriteManager
+
+	jwtUtil *util.JwtUtil
 }
 
 func NewUserService(
 	l *zap.Logger,
 	ud *data.UserDao,
-	rd *data.RelationDao,
-	vd *data.VideoDao,
 	fd *data.FavoriteDao,
-	m *manager.Manager,
+	vm *manager.VideoManager,
+	um *manager.UserManager,
+	m *manager.FavoriteManager,
 	ju *util.JwtUtil) *UserService {
 	return &UserService{
-		logger:      l,
-		userDao:     ud,
-		relationDao: rd,
-		videoDao:    vd,
-		favoriteDao: fd,
-		manager:     m,
-		jwtUtil:     ju,
+		logger:       l,
+		userDao:      ud,
+		favoriteDao:  fd,
+		userManager:  um,
+		videoManager: vm,
+		manager:      m,
+		jwtUtil:      ju,
 	}
 }
 
@@ -42,9 +46,12 @@ func NewUserService(
 //
 // error : ErrUsernameRegistered
 func (u UserService) Register(username, password string) (uint64, string, error) {
-	_, err := u.userDao.GetUserByUsername(username)
-	//err == nil时，说明通过用户名找到了该用户，返回
-	if err == nil {
+	flag, err := u.userDao.ContainsUserUnscoped(model.User{Username: username})
+	if err != nil {
+		return 0, "", err
+	}
+	//flag 为 true，说明通过用户名找到了该用户，返回
+	if flag {
 		return 0, "", terrs.ErrUsernameRegistered
 	}
 
@@ -83,59 +90,12 @@ func (u UserService) Login(username, password string) (uint64, string, error) {
 	} else if !flag {
 		return 0, "", terrs.ErrPasswordWrong
 	}
+
 	//密码正确，返回用户id,token令牌，nil
 	return user.ID, u.jwtUtil.GetJwt(user.ID), nil
 }
 
 // GetUserById 通过Id获得用户信息
-//
-// error : ErrUserNotFound
 func (u UserService) GetUserById(id uint64) (model.User, error) {
-	//调用dao层获取用户信息
-	user, err := u.userDao.GetUserById(id)
-	if err != nil {
-		return model.User{}, err
-	}
-	return user, nil
-}
-
-// GetFollowCount 通过用户Id获得用户关注了的用户的人数
-func (u UserService) GetFollowCount(userId uint64) uint64 {
-	return u.relationDao.GetFollowCount(userId)
-}
-
-// GetFollowerCount 通过用户Id获得用户的粉丝数
-func (u UserService) GetFollowerCount(userId uint64) uint64 {
-	return u.relationDao.GetFollowerCount(userId)
-}
-
-// IsFollow 通过关注者和被关注者的id获取是否存在该关注关系
-func (u UserService) IsFollow(userId uint64, toUserId uint64) (bool, error) {
-	flag, err := u.relationDao.IsFollow(userId, toUserId)
-	//出错则返回是否存在关注关系
-	if err != nil {
-		return false, err
-	}
-	return flag, nil
-}
-
-// ParseUserVO 待补全 ,将user转化为UserVO
-func (u UserService) ParseUserVO(tarUser model.User, curUserId uint64) (model.UserVO, error) {
-	isFollow, err := u.IsFollow(curUserId, tarUser.ID)
-	if err != nil {
-		return model.UserVO{}, err
-	}
-	return model.UserVO{
-		ID:              tarUser.ID,
-		Name:            tarUser.Username,
-		FollowCount:     u.GetFollowCount(tarUser.ID),
-		FollowerCount:   u.GetFollowerCount(tarUser.ID),
-		IsFollow:        isFollow,
-		Avatar:          tarUser.Avatar,
-		BackgroundImage: tarUser.BackgroundImage,
-		Signature:       tarUser.Signature,
-		TotalFavorited:  u.manager.GetTotalFavorited(tarUser.ID),
-		WorkCount:       u.videoDao.CountVideoByAuthorId(tarUser.ID),
-		FavoriteCount:   u.favoriteDao.CountFavoriteByUserId(tarUser.ID),
-	}, nil
+	return u.userManager.GetUserById(id)
 }

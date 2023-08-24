@@ -16,3 +16,7 @@ func NewVideoManager(zl *zap.Logger, vd *data.VideoDao) *VideoManager {
 		videoDao: vd,
 	}
 }
+
+func (v VideoManager) CountVideoByAuthorId(authorId uint64) uint64 {
+	return v.videoDao.CountVideoByAuthorId(authorId)
+}

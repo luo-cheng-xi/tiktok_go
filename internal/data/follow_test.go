@@ -17,7 +17,7 @@ func TestRelationDao_GetFollowCount(t *testing.T) {
 func TestRelationDao_Follow(t *testing.T) {
 	data, _ := NewData(conf.GetData(), logging.NewLogger())
 	relationDao := NewRelationDao(logging.NewLogger(), data)
-	relationDao.Follow(8, 9)
+	relationDao.SaveFollow(8, 9)
 }
 
 func TestRelationDao_GetFollowerCount(t *testing.T) {

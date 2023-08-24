@@ -10,7 +10,7 @@ type JwtUtil struct {
 	jwtConf *conf.JwtConfig
 }
 
-func GetJwtUtil(jc *conf.JwtConfig) *JwtUtil {
+func NewJwtUtil(jc *conf.JwtConfig) *JwtUtil {
 	return &JwtUtil{
 		jwtConf: jc,
 	}

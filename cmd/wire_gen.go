@@ -10,6 +10,7 @@ import (
 	"tiktok/api"
 	"tiktok/internal/conf"
 	"tiktok/internal/data"
+	"tiktok/internal/manager"
 	"tiktok/internal/middleware"
 	"tiktok/internal/service"
 	"tiktok/pkg/logging"
@@ -26,18 +27,28 @@ func BuildInjector() (*Injector, error) {
 		return nil, err
 	}
 	userDao := data.NewUserDao(logger, dataData)
-	jwtConfig := conf.GetJwtConf()
-	jwtUtil := util.GetJwtUtil(jwtConfig)
-	userService := service.NewUserService(logger, userDao, jwtUtil)
-	userController := api.NewUserController(logger, userService)
-	ossConfig := conf.GetOSSConf()
-	ossUtil := util.GetOssUtil(ossConfig)
-	videoDao := data.NewVideoDao(logger, dataData)
-	tiktokConfig := conf.GetTiktokConf()
 	favoriteDao := data.NewFavoriteDao(logger, dataData)
-	videoService := service.NewVideoService(logger, ossUtil, videoDao, tiktokConfig, favoriteDao)
-	videoController := api.NewVideoController(logger, ossUtil, jwtUtil, videoService)
+	videoDao := data.NewVideoDao(logger, dataData)
+	videoManager := manager.NewVideoManager(logger, videoDao)
+	userManager := manager.NewUserManager(logger, userDao)
+	favoriteManager := manager.NewFavoriteManager(logger, userDao, favoriteDao, videoDao)
+	jwtConfig := conf.GetJwtConf()
+	jwtUtil := util.NewJwtUtil(jwtConfig)
+	userService := service.NewUserService(logger, userDao, favoriteDao, videoManager, userManager, favoriteManager, jwtUtil)
+	followDao := data.NewRelationDao(logger, dataData)
+	relationManager := manager.NewRelationManager(logger, followDao, userDao)
+	voUtil := util.NewVoUtil(logger, userManager, videoManager, relationManager, favoriteManager)
+	userController := api.NewUserController(logger, userService, jwtUtil, voUtil)
+	ossConfig := conf.GetOSSConf()
+	ossUtil := util.NewOssUtil(ossConfig)
+	tiktokConfig := conf.GetTiktokConf()
+	videoService := service.NewVideoService(logger, ossUtil, voUtil, videoDao, tiktokConfig, userManager, favoriteManager)
+	videoController := api.NewVideoController(logger, ossUtil, jwtUtil, voUtil, videoService)
+	relationService := service.NewRelationService(logger, relationManager, followDao)
+	relationController := api.NewRelationController(logger, relationService, jwtUtil, voUtil)
+	favoriteService := service.NewFavoriteService(logger, favoriteManager)
+	favoriteController := api.NewInteractionController(logger, jwtUtil, voUtil, favoriteService)
 	loginCheckMiddleware := middleware.NewLoginCheck(userService, jwtUtil)
-	injector := InitInjector(userController, videoController, loginCheckMiddleware)
+	injector := InitInjector(userController, videoController, relationController, favoriteController, loginCheckMiddleware)
 	return injector, nil
 }

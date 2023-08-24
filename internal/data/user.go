@@ -20,9 +20,19 @@ func NewUserDao(l *zap.Logger, d *Data) *UserDao {
 	}
 }
 
+// ContainsUserUnscoped 查询是否存在符合条件的user字段,查询范围包括被逻辑删除的字段
+func (rx UserDao) ContainsUserUnscoped(user model.User) (bool, error) {
+	var ret model.User
+	if err := rx.db.Unscoped().Where(user).Take(&ret).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
+}
+
 // GetUserByUsername 通过用户名获取用户信息
-//
-// error : ErrorUserNotFound
 func (rx UserDao) GetUserByUsername(username string) (model.User, error) {
 	//查找用户名条件相符的用户
 	user := model.User{}
@@ -40,8 +50,6 @@ func (rx UserDao) GetUserByUsername(username string) (model.User, error) {
 }
 
 // GetUserById 通过用户Id获取用户信息
-//
-// error : ErrUserNotFound
 func (rx UserDao) GetUserById(id uint64) (model.User, error) {
 	//查找id条件相符的用户
 	user := model.User{}

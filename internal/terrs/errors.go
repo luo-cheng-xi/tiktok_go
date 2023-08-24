@@ -37,18 +37,23 @@ var (
 	// ErrTokenInvalid 无效的用户鉴权
 	ErrTokenInvalid = TError{UNAUTHENTICATED, errors.New("token invalid")}
 	// ErrUserNotFound 无法找到符合要求的用户
-	ErrUserNotFound = TError{OK, errors.New("user not found")}
+	ErrUserNotFound = TError{INVALID_ARGUMENT, errors.New("user not found")}
 	// ErrUsernameRegistered 用户名已经被注册
-	ErrUsernameRegistered = TError{OK, errors.New("username registered")}
+	ErrUsernameRegistered = TError{INVALID_ARGUMENT, errors.New("username registered")}
 	// ErrUsernameTooLong 用户名过长
-	ErrUsernameTooLong = TError{OK, errors.New("username too long")}
+	ErrUsernameTooLong = TError{INVALID_ARGUMENT, errors.New("username too long")}
 
 	// ErrPasswordWrong 密码错误
-	ErrPasswordWrong = TError{OK, errors.New("password wrong")}
+	ErrPasswordWrong = TError{INVALID_ARGUMENT, errors.New("password wrong")}
 	// ErrPasswordTooLong 密码过长
-	ErrPasswordTooLong = TError{OK, errors.New("password too long")}
+	ErrPasswordTooLong = TError{INVALID_ARGUMENT, errors.New("password too long")}
 	// ErrPasswordTooShort 密码过短
-	ErrPasswordTooShort = TError{OK, errors.New("password too short")}
+	ErrPasswordTooShort = TError{INVALID_ARGUMENT, errors.New("password too short")}
+
+	// ErrUserFollowed 用户已经关注了但却收到了关注请求
+	ErrUserFollowed = TError{INVALID_ARGUMENT, errors.New("user followed")}
+	// ErrUserNotFollowed 用户未关注该用户却发出了取消关注的请求
+	ErrUserNotFollowed = TError{INVALID_ARGUMENT, errors.New("user not followed")}
 
 	// ErrInternal 服务器内部错误
 	ErrInternal = TError{INTERNAL, errors.New("internal")}

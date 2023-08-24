@@ -14,7 +14,7 @@ type OssUtil struct {
 	ossConf *conf.OssConfig
 }
 
-func GetOssUtil(oc *conf.OssConfig) *OssUtil {
+func NewOssUtil(oc *conf.OssConfig) *OssUtil {
 	return &OssUtil{
 		ossConf: oc,
 	}

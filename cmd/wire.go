@@ -8,6 +8,7 @@ import (
 	"tiktok/api"
 	"tiktok/internal/conf"
 	"tiktok/internal/data"
+	"tiktok/internal/manager"
 	"tiktok/internal/middleware"
 	"tiktok/internal/service"
 	"tiktok/pkg/logging"
@@ -17,13 +18,18 @@ import (
 func BuildInjector() (*Injector, error) {
 	wire.Build(
 		InitInjector,
-		api.NewUserController,
-		api.NewVideoController,
 		middleware.NewLoginCheck,
 
+		api.ProviderSet,
+
 		service.ProviderSet,
+
+		manager.ProviderSet,
+
 		data.ProviderSet,
+
 		conf.ProviderSet,
+
 		util.ProviderSet,
 
 		logging.NewLogger,
